@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecg_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount datasets and models for easy swapping/updating without rebuilding the image
+      - ./datasets:/app/datasets:ro
+      - ./backend/models:/app/models:ro
+    environment:
+      - MODEL_PATH=${MODEL_PATH:-/app/models/ecg_cnn.onnx}
+      - DEBUG=${DEBUG:-False}
+    networks:
+      - ecg-network
+    # Health check to ensure API is ready before frontend relies on it
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecg_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}
+    networks:
+      - ecg-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Using wget since alpine image doesn't include curl by default
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Optional Nginx Reverse Proxy
+  # Uncomment the volume mount when you add a custom nginx.conf
+  nginx:
+    image: nginx:alpine
+    container_name: ecg_proxy
+    ports:
+      - "80:80"
+    # volumes:
+    #   - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - ecg-network
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  ecg-network:
+    driver: bridge

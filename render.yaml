@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: ecg-ai-backend
+    env: python
+    region: oregon
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    # Gunicorn with Uvicorn workers is required for ASGI (FastAPI) and WebSocket support
+    startCommand: "gunicorn api.main:app -k uvicorn.workers.UvicornWorker --workers 2 --bind 0.0.0.0:$PORT"
+    healthCheckPath: "/health"
+    healthCheckInterval: 30
+    
+    # Note on WebSockets: Render natively supports WebSockets on web services on the same port 
+    # as standard HTTP traffic. No additional headers or configurations are required.
+    
+    disk:
+      name: model-storage
+      mountPath: /opt/model
+      sizeGB: 1
+      
+    envVars:
+      - key: MODEL_PATH
+        value: /opt/model/ecg_cnn.onnx
+      - key: ALLOWED_ORIGINS
+        value: "https://ecg-ai-platform.vercel.app,https://ecg-ai-platform-pr6thv3.vercel.app,http://localhost:3000"
+      - key: USE_ONNX
+        value: "true"
+      - key: LOG_LEVEL
+        value: "info"
+      - key: PYTHON_VERSION
+        value: "3.10.0"

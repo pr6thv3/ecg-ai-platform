@@ -1,0 +1,51 @@
+name: ECG AI Platform CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-cov httpx
+          
+      - name: Enforce 80% Backend Coverage
+        run: |
+          cd backend
+          pytest --cov=. --cov-fail-under=80
+
+  frontend-build-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: cd frontend && npm ci
+        
+      - name: TypeScript Strict Check
+        run: cd frontend && npx tsc --noEmit
+        
+      - name: Jest UI Tests
+        run: cd frontend && npm test -- --passWithNoTests
+        
+      - name: Next.js Production Build
+        run: cd frontend && npm run build
