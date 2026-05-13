@@ -1,4 +1,5 @@
 import pytest
+import torch
 from fastapi.testclient import TestClient
 from api.main import app
 from inference.model_manager import ModelManager
@@ -11,7 +12,7 @@ def init_model(dummy_model_path):
     # Ensure model is loaded for API tests
     manager = ModelManager()
     if not manager.is_loaded():
-        manager.load_model(dummy_model_path, "cpu")
+        manager.load_model(dummy_model_path, torch.device("cpu"))
 
 def test_health_check():
     """GET /health returns 200, status "ok", and checks if model is loaded."""

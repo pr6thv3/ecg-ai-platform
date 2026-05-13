@@ -27,6 +27,9 @@ class ExplainRequest(BaseModel):
     beat_window: List[float]
     predicted_class: int
 
+class AnalyzeRequest(BaseModel):
+    beat_window: List[float]
+
 def get_dominant_region(peak_idx: int) -> str:
     if peak_idx < 150:
         return "P-wave"
@@ -153,3 +156,27 @@ async def explain_beat(request: ExplainRequest):
             "message": str(e)
         }
 
+@router.post("/analyze")
+async def analyze_beat(request: AnalyzeRequest):
+    """
+    Synchronous single-beat inference endpoint.
+    Accepts a 360-sample beat window, returns classification result.
+    """
+    raw_window = np.array(request.beat_window, dtype=np.float32)
+    
+    if raw_window.shape != (360,):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail=f"Invalid input shape. Expected 360 samples, got {raw_window.shape[0]}")
+    
+    try:
+        model_mgr = ModelManager()
+        from inference.model_manager import USE_ONNX
+        if USE_ONNX and hasattr(model_mgr, "onnx_session") and model_mgr.onnx_session:
+            result = model_mgr.onnx_predict(raw_window)
+        else:
+            result = model_mgr.predict(raw_window)
+        return result
+    except Exception as e:
+        logger.error(f"Analyze failed: {e}")
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))

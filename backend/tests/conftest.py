@@ -21,7 +21,7 @@ def dummy_model_path(tmp_path_factory):
 @pytest.fixture(autouse=True)
 def setup_model_manager(dummy_model_path):
     manager = ModelManager()
-    manager.load_model(dummy_model_path, "cpu")
+    manager.load_model(dummy_model_path, torch.device("cpu"))
     yield manager
 
 @pytest.fixture

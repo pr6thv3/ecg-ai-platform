@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install all dependencies (including devDependencies required for the build)
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application code
 COPY . .
@@ -27,16 +27,13 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy only the necessary files for a smaller image footprint
-COPY package.json package-lock.json* ./
-# Install ONLY production dependencies
-RUN npm ci --only=production
-
-# Copy built assets from the builder stage
-COPY --from=builder /app/.next ./.next
+# Copy standalone output from the builder stage
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 # Expose Next.js port
 EXPOSE 3000
 
-# Start the production server
-CMD ["npm", "start"]
+# Start the standalone server (no npm needed)
+CMD ["node", "server.js"]

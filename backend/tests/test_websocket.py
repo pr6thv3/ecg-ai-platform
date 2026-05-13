@@ -1,5 +1,6 @@
 import pytest
 import json
+import torch
 from fastapi.testclient import TestClient
 from api.main import app
 from inference.model_manager import ModelManager
@@ -12,7 +13,7 @@ def init_model(dummy_model_path):
     # Ensure model is loaded for API tests
     manager = ModelManager()
     if not manager.is_loaded():
-        manager.load_model(dummy_model_path, "cpu")
+        manager.load_model(dummy_model_path, torch.device("cpu"))
 
 def test_websocket_accepts_connection():
     """Connects to /ws/ecg-stream and does not disconnect immediately."""

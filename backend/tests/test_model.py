@@ -1,16 +1,17 @@
 import pytest
 import numpy as np
 import threading
+import torch
 from inference.model_manager import ModelManager
 
 def test_model_loads_without_error(dummy_model_path):
     """ModelManager.load_model() completes successfully and model is not None."""
     manager = ModelManager()
     # Reset singleton state if necessary for clean test
-    manager._model = None
-    manager.load_model(dummy_model_path, "cpu")
+    manager.model = None
+    manager.load_model(dummy_model_path, torch.device("cpu"))
     assert manager.is_loaded() is True
-    assert manager._model is not None
+    assert manager.model is not None
 
 def test_predict_returns_valid_structure(setup_model_manager):
     """Output dict has keys beat_type, confidence, probabilities, latency_ms."""

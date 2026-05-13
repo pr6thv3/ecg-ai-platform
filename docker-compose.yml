@@ -13,7 +13,8 @@ services:
       - ./datasets:/app/datasets:ro
       - ./backend/models:/app/models:ro
     environment:
-      - MODEL_PATH=${MODEL_PATH:-/app/models/ecg_cnn.onnx}
+      - MODEL_PATH=${MODEL_PATH:-/app/models/ecg_cnn.pth}
+      - USE_ONNX=${USE_ONNX:-true}
       - DEBUG=${DEBUG:-False}
     networks:
       - ecg-network

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 class Settings(BaseSettings):
-    MODEL_PATH: Path = Path("/opt/model/ecg_cnn.onnx")
+    MODEL_PATH: Path = Path("/opt/model/ecg_cnn.pth")
     ALLOWED_ORIGINS: str = "http://localhost:3000"
     USE_ONNX: bool = True
     LOG_LEVEL: str = "INFO"
