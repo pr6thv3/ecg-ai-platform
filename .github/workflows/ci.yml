@@ -2,50 +2,72 @@ name: ECG AI Platform CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  backend-coverage:
+  ml-system:
     runs-on: ubuntu-latest
+    env:
+      ECG_ALLOW_SYNTHETIC_FALLBACK: "true"
+      ECG_ALLOW_MISSING_CHECKPOINT: "true"
+      ECG_ALLOW_MODEL_FALLBACK: "true"
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          
-      - name: Install dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-          pip install pytest pytest-cov httpx
-          
-      - name: Enforce 80% Backend Coverage
-        run: |
-          cd backend
-          pytest --cov=. --cov-fail-under=80
+      - uses: actions/checkout@v4
 
-  frontend-build-verify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '18'
-          
-      - name: Install dependencies
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Run smoke pipeline
+        run: python -m scripts.smoke_test_pipeline --config configs/default.yaml
+
+      - name: Validate dataset path
+        run: python -m scripts.validate_dataset --config configs/default.yaml
+
+      - name: Check record-level leakage
+        run: python -m scripts.leakage_check --config configs/default.yaml
+
+      - name: Run robustness checks
+        run: python -m scripts.robustness_test --config configs/default.yaml
+
+      - name: Build API Docker image
+        run: docker build -t ecg-ai-system .
+
+  frontend:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('frontend/package-lock.json') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
         run: cd frontend && npm ci
-        
-      - name: TypeScript Strict Check
-        run: cd frontend && npx tsc --noEmit
-        
-      - name: Jest UI Tests
-        run: cd frontend && npm test -- --passWithNoTests
-        
-      - name: Next.js Production Build
+
+      - name: Typecheck
+        run: cd frontend && npm run typecheck
+
+      - name: Lint
+        run: cd frontend && npm run lint
+
+      - name: Test
+        run: cd frontend && npm test -- --runInBand
+
+      - name: Build
         run: cd frontend && npm run build

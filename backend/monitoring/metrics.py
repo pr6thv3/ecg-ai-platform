@@ -57,7 +57,14 @@ WS_ERRORS = Counter(
 INFERENCE_LATENCY = Histogram(
     "ecg_inference_latency_seconds",
     "Latency of ECG beat classification",
+    labelnames=["runtime"],
     buckets=[0.001, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500]
+)
+PIPELINE_STAGE_LATENCY = Histogram(
+    "ecg_pipeline_stage_latency_seconds",
+    "Latency of individual ECG streaming pipeline stages",
+    labelnames=["stage"],
+    buckets=[0.001, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.0]
 )
 BEATS_CLASSIFIED = Counter(
     "ecg_beats_classified_total",

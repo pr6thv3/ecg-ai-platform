@@ -1,0 +1,190 @@
+{
+  "best_val_macro_f1": 0.3337035574861785,
+  "checkpoint": "artifacts\\models\\best_model.pt",
+  "class_distribution": {
+    "test": {
+      "A": 139,
+      "L": 1457,
+      "N": 7349,
+      "R": 1910,
+      "V": 894
+    },
+    "train": {
+      "A": 1950,
+      "L": 4000,
+      "N": 4000,
+      "R": 3815,
+      "V": 4000
+    },
+    "val": {
+      "A": 457,
+      "L": 2123,
+      "N": 10580,
+      "R": 1530,
+      "V": 1042
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "duration_sec": 435.625,
+  "epochs_ran": 16,
+  "final_val_accuracy": 0.556000508517671,
+  "final_val_macro_f1": 0.3024705526829822,
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 0.001,
+      "train_loss": 1.5928755076341552,
+      "val_accuracy": 0.041507754894482586,
+      "val_loss": 1.6216048002243042,
+      "val_macro_f1": 0.06381891557225203
+    },
+    {
+      "epoch": 2,
+      "learning_rate": 0.001,
+      "train_loss": 1.3959228901738285,
+      "val_accuracy": 0.5973811339944063,
+      "val_loss": 1.4154716730117798,
+      "val_macro_f1": 0.2953519997586992
+    },
+    {
+      "epoch": 3,
+      "learning_rate": 0.001,
+      "train_loss": 1.1733573071828467,
+      "val_accuracy": 0.6519196542079837,
+      "val_loss": 1.3659465312957764,
+      "val_macro_f1": 0.3066146304694586
+    },
+    {
+      "epoch": 4,
+      "learning_rate": 0.001,
+      "train_loss": 0.9821898625328478,
+      "val_accuracy": 0.6398423595219934,
+      "val_loss": 1.3169242143630981,
+      "val_macro_f1": 0.3086835572569257
+    },
+    {
+      "epoch": 5,
+      "learning_rate": 0.001,
+      "train_loss": 0.8120333251569293,
+      "val_accuracy": 0.5990973811339944,
+      "val_loss": 1.3138679265975952,
+      "val_macro_f1": 0.31288291147721203
+    },
+    {
+      "epoch": 6,
+      "learning_rate": 0.001,
+      "train_loss": 0.7128355341732016,
+      "val_accuracy": 0.580091533180778,
+      "val_loss": 1.3105555772781372,
+      "val_macro_f1": 0.3337035574861785
+    },
+    {
+      "epoch": 7,
+      "learning_rate": 0.001,
+      "train_loss": 0.6344810962207278,
+      "val_accuracy": 0.5603864734299517,
+      "val_loss": 1.4526880979537964,
+      "val_macro_f1": 0.3183943136674314
+    },
+    {
+      "epoch": 8,
+      "learning_rate": 0.001,
+      "train_loss": 0.5902266382802013,
+      "val_accuracy": 0.5329900839054157,
+      "val_loss": 1.4932104349136353,
+      "val_macro_f1": 0.3153179522658611
+    },
+    {
+      "epoch": 9,
+      "learning_rate": 0.001,
+      "train_loss": 0.5412660718668759,
+      "val_accuracy": 0.5197686244597,
+      "val_loss": 1.6118861436843872,
+      "val_macro_f1": 0.2935101373174548
+    },
+    {
+      "epoch": 10,
+      "learning_rate": 0.001,
+      "train_loss": 0.5237544333300657,
+      "val_accuracy": 0.5847317569285533,
+      "val_loss": 1.5797462463378906,
+      "val_macro_f1": 0.3331791183598457
+    },
+    {
+      "epoch": 11,
+      "learning_rate": 0.0005,
+      "train_loss": 0.5105919285103062,
+      "val_accuracy": 0.5424612255275871,
+      "val_loss": 1.665105938911438,
+      "val_macro_f1": 0.3059087487854646
+    },
+    {
+      "epoch": 12,
+      "learning_rate": 0.0005,
+      "train_loss": 0.5005415785490477,
+      "val_accuracy": 0.5966183574879227,
+      "val_loss": 1.5847004652023315,
+      "val_macro_f1": 0.32882637613431104
+    },
+    {
+      "epoch": 13,
+      "learning_rate": 0.0005,
+      "train_loss": 0.48796829442692047,
+      "val_accuracy": 0.5525680142384948,
+      "val_loss": 1.63657546043396,
+      "val_macro_f1": 0.31171256363989414
+    },
+    {
+      "epoch": 14,
+      "learning_rate": 0.0005,
+      "train_loss": 0.4699403384085477,
+      "val_accuracy": 0.5736714975845411,
+      "val_loss": 1.7011479139328003,
+      "val_macro_f1": 0.31190233711207105
+    },
+    {
+      "epoch": 15,
+      "learning_rate": 0.00025,
+      "train_loss": 0.4583997672791217,
+      "val_accuracy": 0.5657259089753369,
+      "val_loss": 1.6989939212799072,
+      "val_macro_f1": 0.31433512821435017
+    },
+    {
+      "epoch": 16,
+      "learning_rate": 0.00025,
+      "train_loss": 0.4513518371566597,
+      "val_accuracy": 0.556000508517671,
+      "val_loss": 1.741773009300232,
+      "val_macro_f1": 0.3024705526829822
+    }
+  ],
+  "model_type": "baseline_cnn",
+  "real_mitbih": true,
+  "record_count": 48,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "status": "completed",
+  "training_controls": {
+    "augmentation": {
+      "amplitude_scale_max": 1.1,
+      "amplitude_scale_min": 0.9,
+      "baseline_drift_std": 0.02,
+      "enabled": true,
+      "gaussian_noise_std": 0.02,
+      "time_shift_max": 12
+    },
+    "capped_training": true,
+    "class_weighting": true,
+    "early_stopping_metric": "val_macro_f1",
+    "gradient_clip_norm": 1.0,
+    "max_train_samples_per_class": 4000,
+    "mixed_precision": false,
+    "scheduler": "reduce_on_plateau",
+    "weighted_sampler": true
+  },
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ]
+}

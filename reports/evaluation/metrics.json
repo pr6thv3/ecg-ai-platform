@@ -1,0 +1,165 @@
+{
+  "accuracy": 0.6283939058643289,
+  "anti_collapse_check": {
+    "max_pred_class": "N",
+    "max_pred_percentage": 63.103242829176956,
+    "status": "passed",
+    "unique_classes_predicted": 5,
+    "warnings": []
+  },
+  "checkpoint": "artifacts/models/best_model.pt",
+  "class_distribution": {
+    "real_mitbih": true,
+    "sampling_rate": 360,
+    "source": "mitbih",
+    "split_strategy": "record_id",
+    "test": {
+      "counts": {
+        "A": 139,
+        "L": 1457,
+        "N": 7349,
+        "R": 1910,
+        "V": 894
+      },
+      "percentages": {
+        "A": 1.1831,
+        "L": 12.4011,
+        "N": 62.55,
+        "R": 16.2567,
+        "V": 7.6092
+      },
+      "total": 11749
+    },
+    "train": {
+      "counts": {
+        "A": 1950,
+        "L": 4000,
+        "N": 4000,
+        "R": 3815,
+        "V": 4000
+      },
+      "percentages": {
+        "A": 10.9766,
+        "L": 22.5162,
+        "N": 22.5162,
+        "R": 21.4748,
+        "V": 22.5162
+      },
+      "total": 17765
+    },
+    "validation": {
+      "counts": {
+        "A": 457,
+        "L": 2123,
+        "N": 10580,
+        "R": 1530,
+        "V": 1042
+      },
+      "percentages": {
+        "A": 2.9049,
+        "L": 13.4948,
+        "N": 67.2515,
+        "R": 9.7254,
+        "V": 6.6234
+      },
+      "total": 15732
+    },
+    "warnings": []
+  },
+  "classification_report": {
+    "A": {
+      "f1-score": 0.0013812154696132596,
+      "precision": 0.0007639419404125286,
+      "recall": 0.007194244604316547,
+      "sensitivity": 0.007194244604316547,
+      "specificity": 0.8873385012919897,
+      "support": 139.0
+    },
+    "L": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "sensitivity": 0.0,
+      "specificity": 0.9334434512242519,
+      "support": 1457.0
+    },
+    "N": {
+      "f1-score": 0.8975140554087923,
+      "precision": 0.8935797140544915,
+      "recall": 0.901483194992516,
+      "sensitivity": 0.901483194992516,
+      "specificity": 0.8206818181818182,
+      "support": 7349.0
+    },
+    "R": {
+      "f1-score": 0.06060606060606061,
+      "precision": 0.3727810650887574,
+      "recall": 0.032984293193717276,
+      "sensitivity": 0.032984293193717276,
+      "specificity": 0.989226547413355,
+      "support": 1910.0
+    },
+    "V": {
+      "f1-score": 0.4527071102413568,
+      "precision": 0.31952117863720075,
+      "recall": 0.7762863534675615,
+      "sensitivity": 0.7762863534675615,
+      "specificity": 0.863841547673883,
+      "support": 894.0
+    },
+    "accuracy": 0.6283939058643289,
+    "macro avg": {
+      "f1-score": 0.2824416883451646,
+      "precision": 0.31732917994417253,
+      "recall": 0.34358961725162224,
+      "support": 11749.0
+    },
+    "weighted avg": {
+      "f1-score": 0.6057111681388065,
+      "precision": 0.643857968723922,
+      "recall": 0.6283939058643289,
+      "support": 11749.0
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "low_confidence_summary": {
+    "count": 5590,
+    "percentage": 47.57851732062303,
+    "threshold": 0.6
+  },
+  "macro_f1": 0.2824416883451646,
+  "model_info": {
+    "class_names": [
+      "N",
+      "V",
+      "A",
+      "L",
+      "R"
+    ],
+    "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+    "fallback_used": false,
+    "input_size": 360,
+    "loaded_checkpoint": "artifacts\\models\\best_model.pt",
+    "model_hash": "badb3729d577655732b0aa0cc20d7123eb1906a297eefc4c5518488128560321",
+    "model_type": "baseline_cnn",
+    "requested_checkpoint": "artifacts\\models\\best_model.pt",
+    "runtime": "pytorch",
+    "thresholds_loaded": true,
+    "warnings": []
+  },
+  "note": "Metrics computed on configured MIT-BIH split.",
+  "precision_macro": 0.31732917994417253,
+  "real_mitbih": true,
+  "recall_macro": 0.34358961725162224,
+  "record_count": 48,
+  "roc_auc_ovr_macro": 0.6663152832977353,
+  "runtime": "pytorch",
+  "sample_count": 11749,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ],
+  "weighted_f1": 0.6057111681388065
+}

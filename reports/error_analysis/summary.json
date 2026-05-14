@@ -1,0 +1,101 @@
+{
+  "false_negative_summary": {
+    "A": {
+      "false_negative_count": 119,
+      "false_negative_rate": 0.8561151079136691,
+      "predicted_as": {
+        "L": 1,
+        "N": 9,
+        "R": 0,
+        "V": 109
+      },
+      "support": 139
+    },
+    "L": {
+      "false_negative_count": 1457,
+      "false_negative_rate": 1.0,
+      "predicted_as": {
+        "A": 97,
+        "N": 9,
+        "R": 93,
+        "V": 1258
+      },
+      "support": 1457
+    },
+    "N": {
+      "false_negative_count": 1872,
+      "false_negative_rate": 0.25472853449448907,
+      "predicted_as": {
+        "A": 633,
+        "L": 628,
+        "R": 29,
+        "V": 582
+      },
+      "support": 7349
+    },
+    "R": {
+      "false_negative_count": 1854,
+      "false_negative_rate": 0.9706806282722513,
+      "predicted_as": {
+        "A": 1739,
+        "L": 0,
+        "N": 78,
+        "V": 37
+      },
+      "support": 1910
+    },
+    "V": {
+      "false_negative_count": 13,
+      "false_negative_rate": 0.0145413870246085,
+      "predicted_as": {
+        "A": 5,
+        "L": 3,
+        "N": 5,
+        "R": 0
+      },
+      "support": 894
+    }
+  },
+  "high_confidence_wrong_count": 2798,
+  "low_confidence_correct_count": 2485,
+  "low_confidence_count": 5002,
+  "misclassified_count": 5315,
+  "real_mitbih": true,
+  "source": "mitbih",
+  "total_samples": 11749,
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ],
+  "worst_classes": [
+    {
+      "class": "L",
+      "failure_rate": 1.0,
+      "failures": 1457,
+      "samples": 1457
+    },
+    {
+      "class": "R",
+      "failure_rate": 0.9706806282722513,
+      "failures": 1854,
+      "samples": 1910
+    },
+    {
+      "class": "A",
+      "failure_rate": 0.8561151079136691,
+      "failures": 119,
+      "samples": 139
+    },
+    {
+      "class": "N",
+      "failure_rate": 0.25472853449448907,
+      "failures": 1872,
+      "samples": 7349
+    },
+    {
+      "class": "V",
+      "failure_rate": 0.0145413870246085,
+      "failures": 13,
+      "samples": 894
+    }
+  ]
+}

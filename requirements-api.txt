@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-multipart
+numpy
+scipy
+pandas
+PyYAML
+pydantic
+onnxruntime

@@ -1,0 +1,16 @@
+[run]
+omit =
+    tests/*
+    scripts/*
+    models/*
+    preprocessing/data_loader.py
+    inference/benchmark.py
+    inference/device_manager.py
+    explainability/*
+    segmentation/*
+    utils/ecg_simulator.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

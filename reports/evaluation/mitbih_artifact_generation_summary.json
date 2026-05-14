@@ -1,0 +1,11 @@
+{
+  "benchmark_artifact": "artifacts/metrics/benchmark_summary.json",
+  "evaluation_artifact": "reports/evaluation/mitbih_evaluation_summary.json",
+  "leakage_artifact": "reports/evaluation/leakage_check.json",
+  "macro_f1": 0.06666666666666667,
+  "onnx_inference_p95_ms": 6.706094999754004,
+  "real_mitbih": false,
+  "source": "synthetic_fallback",
+  "status": "completed",
+  "warning": "Synthetic fallback was used; provide MIT-BIH WFDB records before citing model performance."
+}

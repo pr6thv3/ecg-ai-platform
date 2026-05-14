@@ -1,215 +1,211 @@
-# Real-Time AI-Driven ECG Arrhythmia Analysis Platform
+# ECG AI Platform
 
-> **Accelerating clinical diagnosis of cardiac arrhythmias through low-latency deep learning and real-time observability.**
+Production-style ECG arrhythmia ML system with a modular Python pipeline, FastAPI inference API, Streamlit UI, Docker packaging, MIT-BIH WFDB integration, leakage-safe record splitting, evaluation artifacts, robustness checks, explainability outputs, and monitoring logs.
 
-[![Deployment Status](https://img.shields.io/badge/deployment-passing-success?style=flat-square)](#)
-[![Test Coverage](https://img.shields.io/badge/coverage-80%25+-success?style=flat-square)](#)
-[![Python Version](https://img.shields.io/badge/python-3.10-blue?style=flat-square)](#)
-[![Docker Ready](https://img.shields.io/badge/docker-ready-blue?style=flat-square)](#)
-[![Live Demo](https://img.shields.io/badge/demo-online-blue?style=flat-square)](#)
+This is a research, education, and portfolio project. It is not a regulated clinical product and must not be used for diagnosis, treatment, patient monitoring, triage, or medical decision-making.
 
-## Visuals & Features
+## Current Status
 
-<table>
-  <tr>
-    <td width="50%">
-      <img src="docs/assets/dashboard-overview.png" alt="Dashboard Overview">
-      <br>
-      <em>Real-time interactive dashboard visualizing high-frequency ECG streaming, active rhythm classification, and anomaly scoring.</em>
-    </td>
-    <td width="50%">
-      <img src="docs/assets/gradcam-explanation.png" alt="Grad-CAM Explanation">
-      <br>
-      <em>Clinical-grade explainability using Grad-CAM to highlight the exact morphological features driving model predictions.</em>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="docs/assets/ecg-waveform.png" alt="ECG Waveform Focus">
-      <br>
-      <em>360 Hz live telemetry rendering with Pan-Tompkins R-peak detection highlighting dynamic cardiac cycles.</em>
-    </td>
-    <td width="50%">
-      <img src="docs/assets/beat-classification.png" alt="Beat Classification">
-      <br>
-      <em>Continuous beat-by-beat classification achieving sub-millisecond inference across 5 AAMI clinical categories.</em>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="docs/assets/pdf-report.png" alt="Clinical PDF Report">
-      <br>
-      <em>Automated clinical summary report generation via Pydantic-validated PDF streaming.</em>
-    </td>
-    <td width="50%">
-      <img src="docs/assets/metrics-dashboard.png" alt="Metrics Dashboard">
-      <br>
-      <em>Hardened backend observability exposing real-time inference latency, queue depth, and memory telemetry.</em>
-    </td>
-  </tr>
-</table>
+- Real MIT-BIH WFDB files are loaded locally from `datasets/mit-bih`.
+- The loader auto-detects complete `.dat`, `.hea`, and `.atr` triples.
+- `48` complete records are usable; `102-0` is skipped because it is missing matching `.dat` and `.hea` files.
+- Current reports are real MIT-BIH reports, not synthetic fallback reports.
+- The model is functional but still weak. Current post-threshold test macro F1 is `0.2824`; `L` recall is still `0.0`, and `A`/`R` false negatives remain high.
 
-**System Architecture:**
+## Architecture
 
-<img src="docs/assets/architecture-diagram.png" alt="Architecture Diagram" width="100%">
-<br>
-<em>End-to-end system architecture from high-frequency ingestion to edge-optimized ONNX CPU inference.</em>
-
-## Overview
-
-Diagnosing cardiac arrhythmias from high-frequency continuous telemetry remains a computationally expensive and latency-sensitive clinical challenge. This platform solves this by combining digital signal processing (Butterworth + Pan-Tompkins) with a 1D Convolutional Neural Network deployed on an optimized ONNX CPU runtime. The system processes raw ECG streams via real-time WebSockets at 360 Hz, achieving sub-millisecond per-beat inference while exposing deep clinical explainability through Grad-CAM saliency mapping and comprehensive PDF reporting.
-
-## Live Demo
-
-- **Live Platform URL:** [Deploying Soon]
-- **Video Walkthrough:** [Link to Demo Video]
-
-## Features
-
-- **360 Hz WebSocket Streaming:** Sub-millisecond latency telemetry visualization via Next.js and Recharts.
-- **Robust DSP Preprocessing:** Butterworth bandpass filtering (0.5–40Hz) isolates clinical morphology from noise.
-- **Dynamic Beat Segmentation:** Pan-Tompkins R-peak detection aligns and centers dynamic 360-sample heartbeat windows.
-- **5-Class Arrhythmia Detection:** Classifies N, V, A, L, and R beats compliant with AAMI clinical reporting standards.
-- **ONNX Inference Acceleration:** Pytorch weights statically compiled to ONNX for low-overhead, thread-safe CPU execution.
-- **Grad-CAM Saliency Maps:** Visualizes layer-specific convolutional activations to mathematically justify predictions.
-- **Prometheus Telemetry:** Hardened backend exposes real-time inference latency, queue depth, and memory metrics.
-- **Automated PDF Generation:** Pydantic-validated REST endpoint streams styled, self-contained clinical summary reports.
-- **Containerized Architecture:** Fully isolated Docker environment enabling cold-start execution in under 60 seconds.
-- **Production CI/CD Pipeline:** Enforces 80%+ backend coverage, strict TypeScript linting, and Next.js SSR hydration checks.
-
-## System Architecture
-
-```mermaid
-flowchart LR
-    A[Raw ECG Signal] --> B[DSP Pipeline]
-    B -->|Butterworth Bandpass<br>Pan-Tompkins| C[Beat Segmentation]
-    C -->|360 Samples| D[1D CNN Model]
-    D --> E{Inference Engine}
-    E -->|ONNX / CPU| F[WebSocket Router]
-    F -->|360 Hz Stream| G[Next.js Dashboard]
-    F -.-> H[Prometheus Metrics]
+```text
+MIT-BIH WFDB / CSV / TXT
+  -> signal validation
+  -> preprocessing and normalization
+  -> beat/window extraction
+  -> model factory: baseline_cnn | resnet1d | inceptiontime | cnn_lstm
+  -> PyTorch or explicit ONNX fallback inference
+  -> optional per-class thresholding
+  -> probabilities, confidence, timing
+  -> API / CLI / Streamlit UI
+  -> monitoring, evaluation, error analysis, robustness, explainability
 ```
 
-The system ingests continuous ECG streams, isolating distinct beats via Pan-Tompkins DSP. The segmented 360-sample arrays are piped through a thread-safe ONNX Runtime environment, yielding predictions that are immediately emitted across a WebSocket buffer to the Next.js React frontend.
+## Dataset Setup
 
-## ML Pipeline
+Place MIT-BIH Arrhythmia Database WFDB files here:
 
-```python
-# The clinical beat extraction and prediction pipeline:
-raw_signal = receive_socket_buffer()
-filtered_signal = apply_butterworth_bandpass(raw_signal, lowcut=0.5, highcut=40.0, fs=360)
-r_peaks = pan_tompkins_detect(filtered_signal, fs=360)
-
-for peak in r_peaks:
-    # 360 samples centered on the R-peak
-    segment = extract_beat_window(filtered_signal, peak, window_size=360) 
-    normalized_segment = z_score_normalize(segment)
-    
-    # Thread-safe ONNX prediction
-    tensor = to_numpy_tensor(normalized_segment)
-    probabilities = onnx_session.run(None, {input_name: tensor})[0]
-    predicted_class = argmax(probabilities)
+```text
+datasets/mit-bih/
+  100.dat
+  100.hea
+  100.atr
+  ...
 ```
 
-## Tech Stack
+Each usable record must have matching `.dat`, `.hea`, and `.atr` files. Synthetic fallback is only allowed when explicitly enabled in config or CI environment variables, and synthetic outputs must never be cited as MIT-BIH performance.
 
-| Frontend | Backend | ML & Infrastructure |
-| :--- | :--- | :--- |
-| Next.js (App Router) | FastAPI | PyTorch & ONNX Runtime |
-| React Testing Library | Uvicorn & WebSockets | Prometheus & loguru |
-| Recharts & TailwindCSS | Pydantic-Settings | Docker & GitHub Actions |
-| Jest | Pytest | Render & Vercel |
-
-## Quick Start
+Validate the dataset:
 
 ```bash
-git clone https://github.com/pr6thv3/ecg-ai-platform.git
-cd ecg-ai-platform
-docker compose up --build
+python -m scripts.prepare_mitbih --config configs/default.yaml
+python -m scripts.validate_dataset --config configs/default.yaml
+python -m scripts.leakage_check --config configs/default.yaml
 ```
 
-## API Endpoints
+## Training
 
-| Method | Endpoint | Description | Example Response |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/health` | System uptime and ONNX model status. | `{"status": "ok", "model_loaded": true}` |
-| `GET` | `/metrics` | Prometheus metrics scrape target. | `# HELP ecg_inferences_total...` |
-| `POST` | `/analyze` | Synchronous static ECG segment analysis. | `{"class": "V", "confidence": 0.98}` |
-| `POST` | `/explain` | Grad-CAM saliency map for a given beat. | `{"saliency": [0.1, 0.5, ... 0.0]}` |
-| `POST` | `/report/generate` | Generates a clinical PDF summary. | `(Binary PDF Stream)` |
-| `WS` | `/ws/ecg-stream` | Bidirectional 360 Hz stream telemetry. | `{"type": "telemetry", "bpm": 72}` |
+Select architecture in `configs/default.yaml`:
 
-## Model Performance
+```yaml
+model:
+  type: baseline_cnn  # baseline_cnn | resnet1d | inceptiontime | cnn_lstm
+```
 
-*Evaluated on the held-out MIT-BIH Arrhythmia Database test split.*
-
-| Class | Type | Precision | Recall | F1-Score | Support |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **N** | Normal | 0.98 | 0.99 | 0.98 | ~90,000 |
-| **V** | PVC | 0.94 | 0.95 | 0.94 | ~7,000 |
-| **A** | APB | 0.89 | 0.81 | 0.85 | ~2,500 |
-| **L** | LBBB | 0.99 | 0.98 | 0.98 | ~8,000 |
-| **R** | RBBB | 0.97 | 0.98 | 0.98 | ~7,000 |
-
-![Confusion Matrix](docs/assets/confusion_matrix_placeholder.png)
-
-## Benchmarks
-
-| Runtime | Mean Latency (ms) | Beats/sec |
-| :--- | :--- | :--- |
-| **PyTorch** | [RUN: pytest scripts/benchmark_inference.py] | [RUN: pytest scripts/benchmark_inference.py] |
-| **ONNX** | [RUN: pytest scripts/benchmark_inference.py] | [RUN: pytest scripts/benchmark_inference.py] |
-
-For full benchmarking methodology and system metrics, see the [Full Benchmarks Report](docs/benchmarks.md).
-
-## Testing
-
-| Module | Target | Current Coverage |
-| :--- | :--- | :--- |
-| Backend (`backend/`) | 80% | [RUN: pytest --cov=backend] |
-| Frontend (`frontend/`) | 80% | [RUN: npm run test:coverage] |
+Train:
 
 ```bash
-# Run Backend Tests
-pytest --cov=backend
-
-# Run Frontend Tests
-npm run test
+python -m scripts.train_model --config configs/default.yaml
 ```
+
+Training outputs:
+
+```text
+artifacts/models/best_model.pt
+artifacts/metrics/training_history.csv
+artifacts/metrics/training_curves.png
+artifacts/metrics/training_summary.json
+```
+
+Checkpoints include class order, class mapping, preprocessing config, model type, input size, sampling rate, git commit hash when available, training timestamp, and validation metrics summary.
+
+## Evaluation
+
+```bash
+python -m scripts.evaluate_model --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
+python -m scripts.tune_thresholds --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
+```
+
+Generated reports include:
+
+```text
+reports/evaluation/metrics_summary.json
+reports/evaluation/classification_report.json
+reports/evaluation/confusion_matrix.csv
+reports/evaluation/confusion_matrix.png
+reports/evaluation/prediction_distribution.csv
+reports/evaluation/prediction_distribution.png
+reports/evaluation/false_negatives.csv
+reports/evaluation/low_confidence_predictions.csv
+reports/evaluation/roc_curves.png
+reports/evaluation/pr_curves.png
+artifacts/evaluation/thresholds.json
+artifacts/evaluation/dataset_summary.json
+artifacts/evaluation/splits.json
+```
+
+Current verified post-threshold metrics from `artifacts/models/best_model.pt`:
+
+```text
+source: mitbih
+real_mitbih: true
+record_count: 48
+accuracy: 0.6284
+macro_f1: 0.2824
+weighted_f1: 0.6057
+roc_auc_ovr_macro: 0.6663
+```
+
+Threshold tuning improved validation macro F1 from `0.3025` to `0.4276`, but held-out test macro F1 remains weak. This is an engineering-complete baseline, not a reliable medical classifier.
+
+## Inference
+
+CLI:
+
+```bash
+python -m scripts.run_inference --input artifacts/samples/demo_ecg.csv --config configs/default.yaml
+```
+
+The inference response includes `predicted_class`, `confidence`, `probabilities`, `thresholds_used`, timing, model metadata, warnings, and the research-only disclaimer.
+
+FastAPI:
+
+```bash
+uvicorn src.api.app:app --host 127.0.0.1 --port 8010
+```
+
+Endpoints:
+
+- `GET /health`
+- `GET /model-info`
+- `POST /predict`
+- `POST /predict-file`
+
+Streamlit:
+
+```bash
+python -m streamlit run streamlit_app.py --server.headless true --server.port 8502
+```
+
+Set `ECG_API_URL=https://your-api-host` to make Streamlit call a deployed backend instead of the local Python pipeline.
+
+## Optional Slow Workflows
+
+```bash
+python -m scripts.cross_validate --config configs/default.yaml
+python -m scripts.compare_models --config configs/default.yaml
+```
+
+`cross_validate` performs grouped record-level checkpoint evaluation. `compare_models` trains selected architectures with the comparison training cap and reports the best by macro F1.
+
+## Robustness, Explainability, Error Analysis
+
+```bash
+python -m scripts.error_analysis --config configs/default.yaml
+python -m scripts.robustness_test --config configs/default.yaml
+python -m scripts.explain_prediction --input artifacts/samples/demo_ecg.csv --config configs/default.yaml
+python -m scripts.benchmark_model --config configs/default.yaml --checkpoint artifacts/models/best_model.pt --iterations 50
+```
+
+Saliency maps are technical model-debugging artifacts, not medical explanations.
+
+## Docker
+
+Build and run the API image:
+
+```bash
+docker build -t ecg-ai-system .
+docker run -p 8001:8000 ecg-ai-system
+```
+
+The image excludes local `.pt` files and MIT-BIH data. It explicitly enables ONNX fallback through `ECG_ALLOW_MODEL_FALLBACK=true` and serves `backend/models/ecg_cnn.onnx`.
+
+To serve a mounted PyTorch checkpoint, build an image that includes PyTorch dependencies or export the trained model to ONNX. Do not silently rely on a mismatched fallback model.
+
+## Tests
+
+```bash
+python -m pytest -q
+python -m scripts.smoke_test_pipeline --config configs/default.yaml
+```
+
+CI uses explicit environment flags for synthetic/no-checkpoint smoke mode and does not require MIT-BIH data or trained `.pt` files.
 
 ## Deployment
 
-- **Backend:** Configured for [Render](https://render.com) Web Services via `render.yaml`.
-- **Frontend:** Configured for seamless Next.js deployment to [Vercel](https://vercel.com).
+Backend start command for Render/Railway:
+
+```bash
+uvicorn src.api.app:app --host 0.0.0.0 --port $PORT
+```
+
+Do not add public Render, Railway, Streamlit Cloud, or Vercel URLs until they are live and verified. A verified deployment means `/health` returns `status: "ok"`, the UI reaches the backend through environment variables, and no deployed page references localhost.
 
 ## Limitations
 
-- **Single-Lead Analysis:** The model currently only evaluates MLII single-lead geometry and cannot interpret multi-axis spatial pathologies.
-- **Simulated WebSocket Demo:** For demonstration purposes, the live UI streams cached MIT-BIH records via simulated websocket buffering rather than capturing real physical hardware output.
-- **Motion Artifact Susceptibility:** Extreme baseline wander resulting from intense physical patient motion may overcome the bounds of the Butterworth filter, leading to misclassification.
-- **CPU Bound:** Current deployment leverages ONNX CPU runtime. High concurrent scale limits are bound to multi-processing rather than tensor parallelism.
+- Current model quality is not sufficient for medical use.
+- The held-out split is leakage-safe by record ID, but this is still a compact academic ML engineering baseline.
+- `L`, `A`, and `R` performance requires better modeling, split strategy validation, thresholding, and likely full uncapped training before performance claims.
+- HIPAA, GDPR, regulatory validation, hospital deployment, and full production MLOps are out of scope.
 
-## Disclaimer
+## Documentation
 
-**This project is for educational and research demonstration only. Not intended for clinical diagnosis, treatment, or patient monitoring.**
-
-## Future Work
-
-- Expanding the architecture to support spatial 12-lead ECG tensor inputs.
-- Integration with edge-compute wearable microcontrollers via MQTT protocols.
-- Migrating the monolithic model structure to a federated learning architecture for multi-hospital collaboration.
-- Exposing the DSP pipeline in Rust for maximum memory-safe signal throughput.
-- Integrating LLM-driven conversational interfaces for localized report Q&A.
-
-## Citation
-
-If you use this codebase or architecture in your research, please cite:
-
-```bibtex
-@software{ecg_ai_platform_2026,
-  author = {Preethve},
-  title = {Real-Time AI-Driven ECG Arrhythmia Analysis Platform},
-  year = {2026},
-  url = {https://github.com/pr6thv3/ecg-ai-platform}
-}
-```
+- [Technical Report](docs/TECHNICAL_REPORT.md)
+- [Testing And Validation](docs/TESTING_AND_VALIDATION.md)
+- [Model Card](docs/MODEL_CARD.md)

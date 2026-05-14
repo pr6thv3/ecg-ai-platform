@@ -1,0 +1,23 @@
+{
+  "argmax_validation_macro_f1": 0.3024705526829822,
+  "checkpoint": "artifacts/models/best_model.pt",
+  "class_order": [
+    "N",
+    "V",
+    "A",
+    "L",
+    "R"
+  ],
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "optimized_metric": "validation_macro_f1",
+  "real_mitbih": true,
+  "source": "mitbih",
+  "thresholds": {
+    "A": 0.85,
+    "L": 0.15000000000000002,
+    "N": 0.1,
+    "R": 0.4,
+    "V": 0.9
+  },
+  "validation_macro_f1": 0.4275982853459885
+}

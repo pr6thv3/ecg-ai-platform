@@ -9,7 +9,7 @@ describe('ECGWaveformChart', () => {
   });
 
   it('renders correct number of data points when buffer has 500 samples', () => {
-    const data = Array.from({ length: 500 }, (_, i) => ({ time: i, value: Math.random() }));
+    const data = Array.from({ length: 500 }, (_, i) => ({ time: i, value: Math.random(), isPeak: false }));
     render(<ECGWaveformChart data={data} />);
     expect(screen.getByTestId('LineChart')).toBeInTheDocument();
   });
@@ -29,7 +29,7 @@ describe('ECGWaveformChart', () => {
 
   it('does not throw when new data is appended to buffer', () => {
     const { rerender } = render(<ECGWaveformChart data={[]} />);
-    const data = [{ time: 0, value: 0.5 }];
+    const data = [{ time: 0, value: 0.5, isPeak: false }];
     expect(() => {
       rerender(<ECGWaveformChart data={data} />);
     }).not.toThrow();

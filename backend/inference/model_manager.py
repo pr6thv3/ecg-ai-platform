@@ -1,15 +1,14 @@
-import os
 import time
-import logging
 import threading
+import hashlib
+from pathlib import Path
 import torch
 import torch.nn.functional as F
 import numpy as np
-from typing import Dict, Any, List
+from typing import Dict, Any
 
+from config.settings import settings
 from models.train import ECGNet
-from inference.device_manager import get_device
-
 try:
     from explainability.grad_cam import GradCAM1D
 except ImportError:
@@ -29,11 +28,11 @@ AAMI_LABELS = {
     4: "RBBB (R)"
 }
 
-USE_ONNX = os.environ.get("USE_ONNX", "false").lower() == "true"
+USE_ONNX = settings.USE_ONNX
 
 class ModelManager:
     """
-    Thread-safe Singleton managing the PyTorch 1D CNN model inference.
+    Thread-safe singleton managing ECG model inference.
     """
     _instance = None
     _lock = threading.Lock()
@@ -45,58 +44,97 @@ class ModelManager:
                 cls._instance.model = None
                 cls._instance.device = None
                 cls._instance.grad_cam = None
+                cls._instance.onnx_session = None
+                cls._instance.model_path = None
+                cls._instance.model_hash = None
+                cls._instance.model_runtime = "unloaded"
                 cls._instance.inference_lock = threading.Lock()
                 cls._instance.warmup_latency_ms = None
         return cls._instance
 
     def is_loaded(self) -> bool:
         """Checks if the model has been successfully loaded."""
-        if USE_ONNX:
-            return hasattr(self, "onnx_session") and self.onnx_session is not None
-        return self.model is not None
+        return self.onnx_session is not None or self.model is not None
 
     def load_model(self, path: str, device: torch.device) -> None:
         """
-        Loads the .pth model from disk, and optionally the corresponding .onnx model.
+        Loads either an ONNX artifact or a PyTorch checkpoint.
+
+        ONNX is the production path. A sibling .pth file is loaded only when it
+        exists so Grad-CAM can run; missing PyTorch weights do not block ONNX
+        inference.
         """
         with self._lock:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"Model file not found at: {path}")
+            model_path = Path(path)
+            self.model = None
+            self.grad_cam = None
+            self.onnx_session = None
+            self.model_runtime = "unloaded"
+            self.model_path = str(model_path)
+            self.model_hash = None
 
-            self.model_path = path
-            
-            # Load PyTorch model
-            logger.info(f"Loading ECGNet from {path} onto {device}...")
-            self.model = ECGNet(num_classes=5)
-            self.model.load_state_dict(torch.load(path, map_location=device))
-            self.model.to(device)
-            self.model.eval()
+            if not model_path.exists():
+                raise FileNotFoundError(f"Model file not found at: {model_path}")
+
+            self.model_hash = self._sha256(model_path)
+            if settings.MODEL_SHA256 and self.model_hash.lower() != settings.MODEL_SHA256.lower():
+                raise RuntimeError(
+                    f"Model hash mismatch for {model_path}. Expected {settings.MODEL_SHA256}, got {self.model_hash}"
+                )
+
             self.device = device
-            
-            param_count = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-            logger.info(f"PyTorch model loaded successfully. Total trainable parameters: {param_count:,}")
 
-            # Load ONNX model alongside
-            onnx_path = path.replace('.pth', '.onnx')
-            if os.path.exists(onnx_path):
-                logger.info(f"Loading ONNX session from {onnx_path}...")
-                try:
-                    import onnxruntime as ort
-                    self.onnx_session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
-                    logger.info("ONNX model loaded successfully.")
-                except ImportError:
-                    logger.warning("onnxruntime is required to load .onnx models.")
-                    self.onnx_session = None
+            if model_path.suffix.lower() == ".onnx":
+                self._load_onnx(model_path)
+                pth_path = model_path.with_suffix(".pth")
+                if pth_path.exists():
+                    self._load_pytorch(pth_path, device)
+                else:
+                    logger.info("No sibling PyTorch checkpoint found; Grad-CAM is disabled for this runtime.")
+                self.model_runtime = "onnx"
+                return
+
+            self._load_pytorch(model_path, device)
+            onnx_path = model_path.with_suffix(".onnx")
+            if onnx_path.exists():
+                self._load_onnx(onnx_path)
+                self.model_runtime = "onnx" if USE_ONNX else "pytorch"
             else:
                 logger.warning(f"ONNX model file not found at {onnx_path}.")
-                self.onnx_session = None
+                self.model_runtime = "pytorch"
 
-            # Initialize GradCAM (only for PyTorch currently)
-            if GradCAM1D is not None:
-                self.grad_cam = GradCAM1D(self.model)
-                logger.info("GradCAM module initialized successfully.")
-            else:
-                logger.warning("GradCAM1D not available. Explainability will be disabled.")
+    def _load_pytorch(self, path: Path, device: torch.device) -> None:
+        logger.info(f"Loading ECGNet from {path} onto {device}...")
+        self.model = ECGNet(num_classes=5)
+        self.model.load_state_dict(torch.load(str(path), map_location=device, weights_only=True))
+        self.model.to(device)
+        self.model.eval()
+        self.device = device
+
+        param_count = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        logger.info(f"PyTorch model loaded successfully. Total trainable parameters: {param_count:,}")
+
+        if GradCAM1D is not None:
+            self.grad_cam = GradCAM1D(self.model)
+            logger.info("GradCAM module initialized successfully.")
+        else:
+            logger.warning("GradCAM1D not available. Explainability will be disabled.")
+
+    def _load_onnx(self, path: Path) -> None:
+        logger.info(f"Loading ONNX session from {path}...")
+        try:
+            import onnxruntime as ort
+            self.onnx_session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+            logger.info("ONNX model loaded successfully.")
+        except ImportError as exc:
+            raise RuntimeError("onnxruntime is required to load .onnx models.") from exc
+
+    def _sha256(self, path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def warmup(self) -> None:
         """
@@ -114,6 +152,9 @@ class ModelManager:
                 input_name = self.onnx_session.get_inputs()[0].name
                 _ = self.onnx_session.run(None, {input_name: dummy_input})
             else:
+                if self.model is None:
+                    logger.warning("No PyTorch model is available for warmup fallback.")
+                    return
                 dummy_input = torch.zeros(1, 360, device=self.device)
                 with torch.no_grad():
                     _ = self.model(dummy_input)
@@ -129,14 +170,14 @@ class ModelManager:
         Returns:
             Dict containing predicted class, confidence, raw probabilities, and latency.
         """
-        if not self.is_loaded():
-            raise RuntimeError("Model is not loaded.")
+        if self.model is None:
+            raise RuntimeError("PyTorch model is not loaded.")
 
         if beat_window.shape != (360,):
             raise ValueError(f"Invalid input shape. Expected (360,), got {beat_window.shape}")
 
-        if np.isnan(beat_window).any():
-            raise ValueError("Input contains NaN values.")
+        if np.isnan(beat_window).any() or np.isinf(beat_window).any():
+            raise ValueError("Input contains NaN or infinite values.")
 
         try:
             start = time.perf_counter()
@@ -148,7 +189,7 @@ class ModelManager:
                     probs = F.softmax(logits, dim=1).squeeze(0).cpu().numpy()
                         
             latency = (time.perf_counter() - start) * 1000
-            INFERENCE_LATENCY.observe(latency / 1000.0)
+            INFERENCE_LATENCY.labels(runtime="pytorch").observe(latency / 1000.0)
             if latency > 50:
                 logger.warning("Slow inference detected", extra={"latency_ms": latency})
 
@@ -168,6 +209,12 @@ class ModelManager:
             logger.error(f"Inference failed: {e}")
             raise e
 
+    def classify(self, beat_window: np.ndarray) -> Dict[str, Any]:
+        """Runs inference with the configured runtime and falls back to PyTorch when ONNX is unavailable."""
+        if USE_ONNX and self.onnx_session is not None:
+            return self.onnx_predict(beat_window)
+        return self.predict(beat_window)
+
     def onnx_predict(self, beat_window: np.ndarray) -> Dict[str, Any]:
         """
         Runs a forward pass on a single beat window using ONNX Runtime.
@@ -177,6 +224,8 @@ class ModelManager:
 
         if beat_window.shape != (360,):
             raise ValueError(f"Invalid input shape. Expected (360,), got {beat_window.shape}")
+        if np.isnan(beat_window).any() or np.isinf(beat_window).any():
+            raise ValueError("Input contains NaN or infinite values.")
 
         try:
             start = time.perf_counter()
@@ -191,7 +240,7 @@ class ModelManager:
                 probs = exp_logits / exp_logits.sum()
 
             latency = (time.perf_counter() - start) * 1000
-            INFERENCE_LATENCY.observe(latency / 1000.0)
+            INFERENCE_LATENCY.labels(runtime="onnx").observe(latency / 1000.0)
             if latency > 50:
                 logger.warning("Slow ONNX inference detected", extra={"latency_ms": latency})
 

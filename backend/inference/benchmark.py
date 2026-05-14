@@ -58,7 +58,7 @@ def benchmark(args):
             # Measure Inference
             inputs = torch.tensor(windows).to(device)
             
-            # CUDA Synchronization is critical for accurate sub-millisecond benchmarking
+            # CUDA synchronization is required for accurate GPU timing.
             if device.type == 'cuda':
                 torch.cuda.synchronize()
                 

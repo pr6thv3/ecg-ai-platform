@@ -1,0 +1,33 @@
+{
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "input_sampling_rate": 360,
+  "iterations": 50,
+  "latency_ms": {
+    "inference": {
+      "mean": 1.9379779997689184,
+      "median": 1.6714000012143515,
+      "p50": 1.6714000012143515,
+      "p95": 2.657825000642333,
+      "p99": 5.828612998666346
+    },
+    "preprocessing": {
+      "mean": 1.7224400000122841,
+      "median": 1.6074999984994065,
+      "p50": 1.6074999984994065,
+      "p95": 2.3701799997070334,
+      "p99": 2.6260669999464876
+    },
+    "total": {
+      "mean": 3.6645259999204427,
+      "median": 3.289300002506934,
+      "p50": 3.289300002506934,
+      "p95": 4.67064499935077,
+      "p99": 8.448704998299933
+    }
+  },
+  "runtime": "pytorch",
+  "target": {
+    "first_dashboard_payload_sec": 5,
+    "onnx_inference_p95_ms": 200
+  }
+}

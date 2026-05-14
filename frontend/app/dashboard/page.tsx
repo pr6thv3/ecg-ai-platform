@@ -7,24 +7,21 @@ import BeatClassificationPanel from '../../components/BeatClassificationPanel';
 import MetricsBar from '../../components/MetricsBar';
 import AlertBanner from '../../components/AlertBanner';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { buildEcgStreamUrl } from '../../lib/config';
+import ReportActions from '../../components/ReportActions';
 
 export default function Dashboard() {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
-  
-  if (!mounted) return null;
-
-  // Using the test endpoint that strictly fires PVC bursts to demonstrate the alert UI in action
-  const { 
-    connectionStatus, 
-    ecgBuffer, 
-    beatHistory, 
-    currentBPM, 
-    rhythmClass, 
-    anomalyScore, 
-    latestAlert, 
-    setLatestAlert 
-  } = useECGStream('ws://localhost:8000/ws/ecg-stream?mode=synthetic&pattern=pvc_burst');
+  const {
+    connectionStatus,
+    ecgBuffer,
+    beatHistory,
+    currentBPM,
+    rhythmClass,
+    anomalyScore,
+    latestAlert,
+    setLatestAlert,
+    streamError
+  } = useECGStream(buildEcgStreamUrl('pvc_burst'));
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans selection:bg-teal-500/30 overflow-x-hidden">
@@ -38,14 +35,17 @@ export default function Dashboard() {
           <h1 className="text-3xl font-extrabold text-white tracking-tight">ECG AI Monitor</h1>
           <p className="text-slate-400 text-sm mt-1.5 font-medium">Real-Time Continuous Arrhythmia Telemetry</p>
         </div>
-        <div className="flex items-center gap-2.5 bg-slate-800 px-4 py-2 rounded-full border border-slate-700 shadow-sm self-start md:self-end">
-           <div className={`w-2.5 h-2.5 rounded-full ${
-             connectionStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 
-             connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
-           }`}></div>
-           <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">
-             {connectionStatus === 'connected' ? 'Live Stream Active' : connectionStatus}
-           </span>
+        <div className="flex flex-col md:flex-row md:items-center gap-3 self-start md:self-end">
+          <ReportActions history={beatHistory} />
+          <div className="flex items-center gap-2.5 bg-slate-800 px-4 py-2 rounded-full border border-slate-700 shadow-sm">
+             <div className={`w-2.5 h-2.5 rounded-full ${
+               connectionStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+               connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
+             }`}></div>
+             <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">
+               {connectionStatus === 'connected' ? 'Live Stream Active' : connectionStatus}
+             </span>
+          </div>
         </div>
       </header>
 
@@ -61,6 +61,17 @@ export default function Dashboard() {
             status={connectionStatus} 
           />
         </ErrorBoundary>
+
+        {streamError && (
+          <div role="status" className="rounded-md border border-amber-500/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-100">
+            {streamError}
+          </div>
+        )}
+        {connectionStatus === 'disconnected' && !streamError && (
+          <div role="status" className="rounded-md border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-100">
+            Backend stream disconnected. The dashboard will keep retrying without crashing.
+          </div>
+        )}
 
         {/* Core Visualization Array */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[550px]">
@@ -92,7 +103,7 @@ export default function Dashboard() {
                  </div>
                  <div className="bg-slate-900/50 p-3 rounded border border-slate-700/50 border-l-2 border-l-blue-500">
                     <span className="block text-blue-400/80 text-[10px] uppercase font-bold tracking-widest mb-1">Inference Engine</span>
-                    <span className="font-mono text-xs font-semibold text-white block">PyTorch 1D-CNN</span>
+                    <span className="font-mono text-xs font-semibold text-white block">ONNX Runtime CPU</span>
                  </div>
                </div>
             </div>

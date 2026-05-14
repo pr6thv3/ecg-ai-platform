@@ -1,0 +1,101 @@
+project:
+  name: ecg-ai-platform
+  disclaimer: "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making."
+
+dataset:
+  source: mitbih
+  mitbih_path: datasets/mit-bih
+  records: []
+  auto_detect_records: true
+  annotation_extension: atr
+  signal_channel: 0
+  sample_file: artifacts/samples/demo_ecg.csv
+  allow_synthetic_fallback: false
+  synthetic_samples_per_class: 30
+  synthetic_records_per_class: 6
+  sampling_rate: 360
+  class_mapping:
+    N: 0
+    V: 1
+    A: 2
+    L: 3
+    R: 4
+  split:
+    seed: 42
+    train_ratio: 0.7
+    val_ratio: 0.15
+    test_ratio: 0.15
+    group_by: record_id
+
+preprocessing:
+  lowcut_hz: 0.5
+  highcut_hz: 40.0
+  filter_order: 1
+  window_size: 360
+  normalize: true
+  min_signal_length: 360
+  expected_sampling_rate: 360
+  max_nan_fraction: 0.0
+
+model:
+  type: baseline_cnn
+  class_names: ["N", "V", "A", "L", "R"]
+  input_size: 360
+  runtime: pytorch
+  checkpoint: artifacts/models/best_model.pt
+  fallback_checkpoint: backend/models/ecg_cnn.onnx
+  allow_fallback_checkpoint: false
+  allow_missing_checkpoint: false
+  onnx_provider: CPUExecutionProvider
+  confidence_threshold: 0.6
+  checkpoint_validation: true
+  threshold_path: artifacts/evaluation/thresholds.json
+
+training:
+  seed: 42
+  epochs: 30
+  batch_size: 512
+  learning_rate: 0.001
+  patience: 10
+  max_train_samples_per_class: 4000
+  uncapped: false
+  class_weighting: true
+  max_class_weight: 5.0
+  weighted_sampler: true
+  sampler_weight_power: 0.5
+  scheduler: reduce_on_plateau
+  gradient_clip_norm: 1.0
+  mixed_precision: true
+  compare_epochs: 3
+  compare_max_train_samples_per_class: 1000
+  oversample_train: false
+  augmentation:
+    enabled: true
+    gaussian_noise_std: 0.02
+    amplitude_scale_min: 0.9
+    amplitude_scale_max: 1.1
+    baseline_drift_std: 0.02
+    time_shift_max: 12
+
+inference:
+  reject_below_confidence: false
+  low_confidence_threshold: 0.6
+  log_inference: true
+
+artifacts:
+  models_dir: artifacts/models
+  metrics_dir: artifacts/metrics
+  evaluation_dir: artifacts/evaluation
+  logs_dir: artifacts/logs
+  split_manifest: artifacts/metrics/split_manifest.json
+  inference_log: artifacts/logs/inference_log.csv
+
+reports:
+  evaluation_dir: reports/evaluation
+  error_analysis_dir: reports/error_analysis
+  robustness_dir: reports/robustness
+  explainability_dir: reports/explainability
+  benchmark_dir: reports/benchmarks
+
+logging:
+  level: INFO

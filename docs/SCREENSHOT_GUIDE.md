@@ -23,17 +23,17 @@ This guide details exactly how to capture the 7 essential screenshots for the pr
 ### 3. Beat Classification Panel
 - **Filename:** `screenshots/beat-classification.png`
 - **State:** Cropped capture of the recent predictions/classification list. Wait for the simulator to fire a mix of normal (N) and abnormal (V, A, L, or R) beats. Ensure the probability/confidence progress bars are clearly visible.
-- **Caption:** *Continuous beat-by-beat classification achieving sub-millisecond inference across 5 AAMI clinical categories.*
+- **Caption:** *Continuous beat-by-beat classification across 5 AAMI-style demo categories.*
 
 ### 4. Grad-CAM Explanation
 - **Filename:** `screenshots/gradcam-explanation.png`
 - **State:** Capture of the specific explanation modal or panel. Select a Premature Ventricular Contraction (PVC/V) beat to inspect. The red/blue saliency heatmap must be visibly overlaid on the beat signal, alongside the top-3 class probability breakdown.
-- **Caption:** *Clinical-grade explainability using Grad-CAM to highlight the exact morphological features driving model predictions.*
+- **Caption:** *Grad-CAM explainability view highlighting the signal regions that influenced a model prediction.*
 
 ### 5. Clinical PDF Report
 - **Filename:** `screenshots/pdf-report.png`
 - **State:** Open the generated PDF in your browser's PDF viewer. Capture the summary page showing the patient/session overview, total beat counts, anomaly distributions, and the sample anomaly chart.
-- **Caption:** *Automated clinical summary report generation via Pydantic-validated PDF streaming.*
+- **Caption:** *Automated research-demo summary report generation via Pydantic-validated PDF streaming.*
 
 ### 6. Metrics & Observability
 - **Filename:** `screenshots/metrics-dashboard.png`

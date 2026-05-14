@@ -1,14 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
 import time
-import logging
-import torch
 
 from api.ws_router import router as ws_router
 from api.report_router import router as report_router
-from models.train import ECGNet # Assuming this is where ECGNet is defined
 
 from config.settings import settings
 from utils.logger import setup_logging, get_logger, RequestIDMiddleware
@@ -22,7 +18,7 @@ from monitoring.metrics import dashboard_tracker, WS_CONNECTIONS
 setup_logging()
 logger = get_logger("api.main")
 
-from inference.model_manager import ModelManager, USE_ONNX
+from inference.model_manager import ModelManager
 from inference.device_manager import get_device
 
 START_TIME = time.time()
@@ -44,11 +40,9 @@ async def lifespan(app: FastAPI):
         manager.load_model(model_path, device)
         manager.warmup()
     except FileNotFoundError as e:
-        logger.error(f"Critical Startup Error: {e}")
-        raise RuntimeError("Failed to start application: Model weights not found. Cannot serve inference.") from e
+        logger.error(f"Model unavailable at startup: {e}")
     except Exception as e:
-        logger.error(f"Critical Startup Error during model load: {e}")
-        raise RuntimeError("Failed to start application due to model loading error.") from e
+        logger.error(f"Model loading failed at startup: {e}")
         
     yield
     
@@ -77,11 +71,18 @@ app.add_middleware(
 app.add_middleware(RequestIDMiddleware)
 
 # Prometheus metrics security
-security = HTTPBasic()
+security = HTTPBasic(auto_error=False)
 
-def verify_metrics_auth(credentials: HTTPBasicCredentials = Depends(security)):
+def verify_metrics_auth(credentials: HTTPBasicCredentials | None = Depends(security)):
     if not settings.METRICS_AUTH_TOKEN:
-        return True # Auth is disabled if no token is set
+        return True
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Metrics authentication required",
+            headers={"WWW-Authenticate": "Basic"},
+        )
     
     is_user_ok = secrets.compare_digest(credentials.username, "admin")
     is_pass_ok = secrets.compare_digest(credentials.password, settings.METRICS_AUTH_TOKEN)
@@ -123,14 +124,14 @@ async def health_check():
     """
     manager = ModelManager()
     
-    device_str = "cpu"
-    if manager.device and manager.device.type == "cuda":
-        device_str = "cuda"
+    device_str = getattr(manager.device, "type", str(manager.device or "cpu"))
         
     return {
-        "status": "ok",
+        "status": "ok" if manager.is_loaded() else "model_unavailable",
         "model_loaded": manager.is_loaded(),
-        "model_type": "onnx" if USE_ONNX else "pytorch",
+        "model_type": manager.model_runtime,
+        "model_path": manager.model_path,
+        "model_sha256": manager.model_hash,
         "device": device_str,
         "warmup_latency_ms": manager.warmup_latency_ms,
         "version": app.version,

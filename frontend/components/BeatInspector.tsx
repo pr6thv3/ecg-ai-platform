@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { BeatEvent } from '../hooks/useECGStream';
+import { getApiBaseUrl } from '../lib/config';
+import { ExplainResponse, explainResponseSchema } from '../lib/schemas';
 
 interface Prediction {
   class: number;
   label: string;
   confidence: number;
-}
-
-interface ExplainResponse {
-  saliency_map: number[];
-  predictions: Prediction[];
-  dominant_region: string;
 }
 
 const CLASS_MAP: Record<string, number> = { 'N': 0, 'V': 1, 'A': 2, 'L': 3, 'R': 4 };
@@ -21,20 +17,27 @@ interface BeatInspectorProps {
   onClose: () => void;
 }
 
+type ExplanationState = {
+  beatKey: string;
+  data: ExplainResponse;
+};
+
 export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
-  const [explainData, setExplainData] = useState<ExplainResponse | null>(null);
+  const [explanation, setExplanation] = useState<ExplanationState | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const beatKey = beat ? `${beat.timestamp}-${beat.beat_type}` : '';
 
   useEffect(() => {
-    if (!beat) {
-      setExplainData(null);
-      return;
-    }
+    if (!beat) return;
+
+    let cancelled = false;
 
     const fetchExplanation = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const response = await fetch('http://localhost:8000/explain', {
+        const response = await fetch(`${getApiBaseUrl().replace(/\/$/, '')}/explain`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -42,19 +45,36 @@ export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
             predicted_class: CLASS_MAP[beat.beat_type] || 0
           })
         });
-        const data: ExplainResponse = await response.json();
-        setExplainData(data);
+        if (!response.ok) {
+          throw new Error('Explainability is unavailable for this beat.');
+        }
+        const parsed = explainResponseSchema.safeParse(await response.json());
+        if (!parsed.success) {
+          throw new Error('Explainability response did not match the expected contract.');
+        }
+        if (!cancelled) {
+          setExplanation({ beatKey, data: parsed.data });
+        }
       } catch (error) {
-        console.error("Failed to fetch explanation:", error);
+        if (!cancelled) {
+          setError(error instanceof Error ? error.message : 'Failed to fetch explanation.');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchExplanation();
-  }, [beat]);
+    return () => {
+      cancelled = true;
+    };
+  }, [beat, beatKey]);
 
   if (!beat) return null;
+
+  const explainData = explanation?.beatKey === beatKey ? explanation.data : null;
 
   // Map raw window and saliency into a single data array for Recharts
   const chartData = beat.raw_window.map((val, idx) => ({
@@ -84,6 +104,7 @@ export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
           </h2>
           <button 
             onClick={onClose}
+            aria-label="Close beat inspector"
             className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,6 +121,11 @@ export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
               {loading && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/50 rounded-lg">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+                </div>
+              )}
+              {error && !loading && (
+                <div className="absolute inset-x-4 top-4 z-10 rounded border border-amber-500/40 bg-amber-950/80 p-3 text-sm text-amber-100">
+                  {error}
                 </div>
               )}
               <ResponsiveContainer width="100%" height="100%">
@@ -146,7 +172,7 @@ export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
               <div className="bg-slate-800/80 rounded-lg p-4 border border-slate-700">
                 <div className="text-sm text-slate-400 mb-1">Dominant Feature Region</div>
                 <div className="text-xl font-bold text-teal-400">
-                  {loading ? 'Analyzing...' : explainData?.dominant_region || 'Unknown'}
+                  {loading ? 'Analyzing...' : explainData?.dominant_region || 'Unavailable'}
                 </div>
               </div>
             </div>
@@ -154,7 +180,7 @@ export default function BeatInspector({ beat, onClose }: BeatInspectorProps) {
             <div>
               <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Top 3 Predictions</h3>
               <div className="space-y-3">
-                {explainData?.predictions.map((pred, i) => (
+                {explainData?.predictions?.map((pred, i) => (
                   <div key={pred.class} className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span className={i === 0 ? "text-white font-medium" : "text-slate-400"}>

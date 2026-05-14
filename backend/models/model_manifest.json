@@ -1,0 +1,9 @@
+{
+  "artifact": "ecg_cnn.onnx",
+  "runtime": "onnxruntime",
+  "sha256": "4d796c63201114a5bfeb128fb32d78da0c13b6b92385682cddf4d7b6260c8c25",
+  "classes": ["N", "V", "A", "L", "R"],
+  "input_shape": [1, 360],
+  "sampling_rate_hz": 360,
+  "notes": "Portfolio demo artifact for ECG telemetry experiments. Not a clinical diagnostic device."
+}

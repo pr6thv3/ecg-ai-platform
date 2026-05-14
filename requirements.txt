@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+python-multipart
+numpy
+scipy
+scikit-learn
+pandas
+matplotlib
+PyYAML
+pydantic
+torch
+onnxruntime
+streamlit
+pytest
+httpx
+wfdb

@@ -1,0 +1,14 @@
+.git/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+backend/.pytest_cache/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.env
+.env.*
+artifacts/models/*.pt
+datasets/mit-bih/

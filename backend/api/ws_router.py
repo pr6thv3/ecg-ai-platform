@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 import asyncio
 import numpy as np
 import time
@@ -9,14 +9,15 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from api.connection_manager import ConnectionManager
+from config.settings import settings
 from utils.stream_state import StreamStateTracker
 from utils.ecg_simulator import ECGSimulator
 from inference.model_manager import ModelManager
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import List
 
 from utils.logger import get_logger
-from monitoring.metrics import WS_CONNECTIONS, WS_ERRORS, BEATS_CLASSIFIED, WS_MESSAGES_RECEIVED, dashboard_tracker
+from monitoring.metrics import WS_CONNECTIONS, WS_ERRORS, BEATS_CLASSIFIED, WS_MESSAGES_RECEIVED, dashboard_tracker, PIPELINE_STAGE_LATENCY
 
 logger = get_logger("api.ws_router")
 
@@ -24,11 +25,31 @@ router = APIRouter()
 manager = ConnectionManager()
 
 class ExplainRequest(BaseModel):
-    beat_window: List[float]
-    predicted_class: int
+    beat_window: List[float] = Field(
+        min_length=settings.MAX_BEAT_WINDOW_LENGTH,
+        max_length=settings.MAX_BEAT_WINDOW_LENGTH,
+    )
+    predicted_class: int = Field(ge=0, le=4)
+
+    @field_validator("beat_window")
+    @classmethod
+    def validate_beat_window(cls, value: List[float]) -> List[float]:
+        if any(not np.isfinite(sample) for sample in value):
+            raise ValueError("beat_window must contain only finite numbers")
+        return value
 
 class AnalyzeRequest(BaseModel):
-    beat_window: List[float]
+    beat_window: List[float] = Field(
+        min_length=settings.MAX_BEAT_WINDOW_LENGTH,
+        max_length=settings.MAX_BEAT_WINDOW_LENGTH,
+    )
+
+    @field_validator("beat_window")
+    @classmethod
+    def validate_beat_window(cls, value: List[float]) -> List[float]:
+        if any(not np.isfinite(sample) for sample in value):
+            raise ValueError("beat_window must contain only finite numbers")
+        return value
 
 def get_dominant_region(peak_idx: int) -> str:
     if peak_idx < 150:
@@ -50,6 +71,21 @@ async def websocket_ecg_endpoint(websocket: WebSocket, mode: str = "synthetic", 
         pattern: Event injection pattern if synthetic ('normal', 'pvc_burst', 'apb')
         record: MIT-BIH record number if mitbih mode
     """
+    origin = websocket.headers.get("origin")
+    if origin and origin not in settings.allowed_origins_list:
+        await websocket.close(code=1008)
+        return
+
+    if mode not in {"synthetic", "mitbih"}:
+        await websocket.close(code=1008)
+        return
+    if pattern not in {"normal", "pvc_burst", "apb"}:
+        await websocket.close(code=1008)
+        return
+    if mode == "mitbih" and record not in settings.allowed_mitbih_records_set:
+        await websocket.close(code=1008)
+        return
+
     await manager.connect(websocket)
     WS_CONNECTIONS.inc()
     logger.info("WebSocket connection opened", extra={"mode": mode, "pattern": pattern, "record": record})
@@ -67,16 +103,14 @@ async def websocket_ecg_endpoint(websocket: WebSocket, mode: str = "synthetic", 
             
         async for beat_data in stream:
             # 2. Preprocessing
-            raw_window = np.array(beat_data["raw_window"])
+            preprocess_started = time.perf_counter()
+            raw_window = np.array(beat_data["raw_window"], dtype=np.float32)
+            PIPELINE_STAGE_LATENCY.labels(stage="payload_preprocess").observe(time.perf_counter() - preprocess_started)
             
             # 3. Model Inference (Real)
             try:
                 model_mgr = ModelManager()
-                from inference.model_manager import USE_ONNX
-                if USE_ONNX:
-                    result = model_mgr.onnx_predict(raw_window)
-                else:
-                    result = model_mgr.predict(raw_window)
+                result = model_mgr.classify(raw_window)
                 beat_type = result["beat_type"]
                 confidence = result["confidence"]
                 error_state = None
@@ -121,7 +155,9 @@ async def websocket_ecg_endpoint(websocket: WebSocket, mode: str = "synthetic", 
             if error_state:
                 payload["error"] = error_state
             
+            send_started = time.perf_counter()
             await manager.send_personal_message(payload, websocket)
+            PIPELINE_STAGE_LATENCY.labels(stage="websocket_send").observe(time.perf_counter() - send_started)
             
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -143,7 +179,7 @@ async def explain_beat(request: ExplainRequest):
     Grad-CAM explainability endpoint.
     Takes a raw beat window and target class, returning the saliency map.
     """
-    raw_window = np.array(request.beat_window)
+    raw_window = np.array(request.beat_window, dtype=np.float32)
     
     try:
         model_mgr = ModelManager()
@@ -151,10 +187,7 @@ async def explain_beat(request: ExplainRequest):
         return result
     except Exception as e:
         logger.error(f"Explainability failed: {e}")
-        return {
-            "error": "explainability_failed",
-            "message": str(e)
-        }
+        raise HTTPException(status_code=503, detail="Explainability is unavailable for the loaded model.") from e
 
 @router.post("/analyze")
 async def analyze_beat(request: AnalyzeRequest):
@@ -164,19 +197,9 @@ async def analyze_beat(request: AnalyzeRequest):
     """
     raw_window = np.array(request.beat_window, dtype=np.float32)
     
-    if raw_window.shape != (360,):
-        from fastapi import HTTPException
-        raise HTTPException(status_code=422, detail=f"Invalid input shape. Expected 360 samples, got {raw_window.shape[0]}")
-    
     try:
         model_mgr = ModelManager()
-        from inference.model_manager import USE_ONNX
-        if USE_ONNX and hasattr(model_mgr, "onnx_session") and model_mgr.onnx_session:
-            result = model_mgr.onnx_predict(raw_window)
-        else:
-            result = model_mgr.predict(raw_window)
-        return result
+        return model_mgr.classify(raw_window)
     except Exception as e:
         logger.error(f"Analyze failed: {e}")
-        from fastapi import HTTPException
         raise HTTPException(status_code=500, detail=str(e))

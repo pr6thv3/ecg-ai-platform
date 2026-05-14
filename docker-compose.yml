@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -13,9 +11,13 @@ services:
       - ./datasets:/app/datasets:ro
       - ./backend/models:/app/models:ro
     environment:
-      - MODEL_PATH=${MODEL_PATH:-/app/models/ecg_cnn.pth}
+      - MODEL_PATH=${MODEL_PATH:-/app/models/ecg_cnn.onnx}
+      - MODEL_SHA256=${MODEL_SHA256:-}
       - USE_ONNX=${USE_ONNX:-true}
       - DEBUG=${DEBUG:-False}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - METRICS_AUTH_TOKEN=${METRICS_AUTH_TOKEN:-}
+      - REPORT_AUTH_TOKEN=${REPORT_AUTH_TOKEN:-}
     networks:
       - ecg-network
     # Health check to ensure API is ready before frontend relies on it
@@ -34,7 +36,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
     networks:
       - ecg-network
     depends_on:
@@ -42,7 +45,7 @@ services:
         condition: service_healthy
     # Using wget since alpine image doesn't include curl by default
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3

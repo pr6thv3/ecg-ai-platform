@@ -50,8 +50,8 @@ def test_explain_endpoint_success():
         assert "saliency_map" in data
         assert "dominant_region" in data
     else:
-        # Assuming we might not have grad_cam in test env without extra setup
-        assert response.status_code in [200, 500]
+        # ONNX-only test runs do not have the PyTorch hooks needed for Grad-CAM.
+        assert response.status_code in [200, 503]
 
 def test_report_generate_endpoint_success():
     """POST /report/generate with dummy session data returns 200 and a mock URL or PDF bytes."""

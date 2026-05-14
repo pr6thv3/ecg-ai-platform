@@ -1,0 +1,19 @@
+{
+  "confidence": 0.5911720991134644,
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "image": "reports\\explainability\\prediction_explanation.png",
+  "input": "artifacts\\samples\\demo_ecg.csv",
+  "method": "gradient_saliency",
+  "predicted_class": "L",
+  "probabilities": {
+    "A": 0.023099485784769058,
+    "L": 0.5911720991134644,
+    "N": 0.28085023164749146,
+    "R": 2.8733247745549306e-05,
+    "V": 0.10484945774078369
+  },
+  "research_only": true,
+  "runtime": "pytorch",
+  "thresholds_used": true,
+  "warning": "Saliency is a technical model-debugging signal, not medical reasoning or clinical evidence."
+}

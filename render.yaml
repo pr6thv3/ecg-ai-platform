@@ -13,19 +13,20 @@ services:
     # Note on WebSockets: Render natively supports WebSockets on web services on the same port 
     # as standard HTTP traffic. No additional headers or configurations are required.
     
-    disk:
-      name: model-storage
-      mountPath: /opt/model
-      sizeGB: 1
-      
     envVars:
       - key: MODEL_PATH
-        value: /opt/model/ecg_cnn.onnx
+        value: models/ecg_cnn.onnx
+      - key: MODEL_SHA256
+        value: "4d796c63201114a5bfeb128fb32d78da0c13b6b92385682cddf4d7b6260c8c25"
       - key: ALLOWED_ORIGINS
         value: "https://ecg-ai-platform.vercel.app,https://ecg-ai-platform-pr6thv3.vercel.app,http://localhost:3000"
       - key: USE_ONNX
         value: "true"
       - key: LOG_LEVEL
         value: "info"
+      - key: METRICS_AUTH_TOKEN
+        sync: false
+      - key: REPORT_AUTH_TOKEN
+        sync: false
       - key: PYTHON_VERSION
         value: "3.10.0"

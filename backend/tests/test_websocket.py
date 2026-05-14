@@ -1,5 +1,4 @@
 import pytest
-import json
 import torch
 from fastapi.testclient import TestClient
 from api.main import app
@@ -16,57 +15,45 @@ def init_model(dummy_model_path):
         manager.load_model(dummy_model_path, torch.device("cpu"))
 
 def test_websocket_accepts_connection():
-    """Connects to /ws/ecg-stream and does not disconnect immediately."""
+    """Connects to /ws/ecg-stream and receives the streaming contract."""
     with client.websocket_connect("/ws/ecg-stream") as websocket:
-        # Check it's connected by trying to send a ping or similar
-        websocket.send_json({"type": "ping"})
-        # Not expecting a specific answer for ping if not implemented, but connection is alive
-        pass
+        response = websocket.receive_json()
+        assert "timestamp" in response
+        assert "bpm" in response
+        assert "beat_type" in response
+        assert "confidence" in response
+        assert "raw_window" in response
 
-def test_websocket_rejects_invalid_json():
-    """Send malformed JSON string, assert connection closed (server might handle it by disconnecting or ignoring)."""
-    with client.websocket_connect("/ws/ecg-stream") as websocket:
-        websocket.send_text("this is not json")
-        # FastAPI typically closes with 1003 or similar if it fails to parse expected JSON,
-        # but our implementation might just catch it.
-        # Let's see what happens.
-        try:
-            websocket.receive()
-        except Exception as e:
-            # We expect a disconnect exception
+def test_websocket_rejects_invalid_mode():
+    """Invalid stream modes are rejected before the socket is accepted."""
+    with pytest.raises(Exception):
+        with client.websocket_connect("/ws/ecg-stream?mode=invalid"):
             pass
 
 def test_websocket_processes_valid_beat():
-    """Send valid beat JSON, receive classification."""
+    """The stream emits valid classification fields."""
     with client.websocket_connect("/ws/ecg-stream") as websocket:
-        payload = {"type": "beat", "payload": [0.0] * 360}
-        websocket.send_json(payload)
-        
         response = websocket.receive_json()
-        assert response["type"] == "classification"
-        assert "class" in response
+        assert response["beat_type"] in {"N", "V", "A", "L", "R", "UNKNOWN"}
         assert "confidence" in response
         assert "alert" in response
 
-def test_websocket_triggers_alert_on_arrhythmia(mocker):
+def test_websocket_triggers_alert_on_arrhythmia(monkeypatch):
     """Mock model to predict 'V', assert emitted message sets alert=True."""
-    # We use pytest-mock to mock ModelManager.predict
-    mock_predict = mocker.patch("inference.model_manager.ModelManager.predict")
-    mock_predict.return_value = {
-        "beat_type": "V",
-        "confidence": 0.99,
-        "probabilities": {"N": 0.01, "V": 0.99, "A": 0.0, "L": 0.0, "R": 0.0},
-        "latency_ms": 1.0
-    }
+    def classify(_self, _window):
+        return {
+            "beat_type": "V",
+            "confidence": 0.55,
+            "probabilities": {"N": 0.01, "V": 0.55, "A": 0.0, "L": 0.0, "R": 0.0},
+            "latency_ms": 1.0,
+        }
+
+    monkeypatch.setattr("inference.model_manager.ModelManager.classify", classify)
     
     with client.websocket_connect("/ws/ecg-stream") as websocket:
-        payload = {"type": "beat", "payload": [0.0] * 360}
-        websocket.send_json(payload)
-        
         response = websocket.receive_json()
-        assert response["type"] == "classification"
-        assert response["class"] == "V"
-        assert response["alert"] is True
+        assert response["beat_type"] == "V"
+        assert response["alert"]
 
 def test_websocket_graceful_disconnect():
     """Client closes connection, server does not crash."""

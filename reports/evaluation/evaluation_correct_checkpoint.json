@@ -1,0 +1,65 @@
+{
+  "accuracy": 0.6295054484492875,
+  "anti_collapse_check": {
+    "max_pred_percentage": 45.85079631181894,
+    "unique_classes_predicted": 4,
+    "warning": "\u26a0\ufe0f Model never predicts classes: A"
+  },
+  "checkpoint": "artifacts/models/best_model.pt",
+  "classification_report": {
+    "A": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 34.0
+    },
+    "L": {
+      "f1-score": 0.0009411764705882353,
+      "precision": 0.5,
+      "recall": 0.0004710315591144607,
+      "support": 2123.0
+    },
+    "N": {
+      "f1-score": 0.9648127128263337,
+      "precision": 0.9323583180987203,
+      "recall": 0.999607996863975,
+      "support": 2551.0
+    },
+    "R": {
+      "f1-score": 0.9772172497965825,
+      "precision": 0.9966804979253112,
+      "recall": 0.9584996009577015,
+      "support": 1253.0
+    },
+    "V": {
+      "f1-score": 0.0029600394671928957,
+      "precision": 0.0014829461196243204,
+      "recall": 0.75,
+      "support": 4.0
+    },
+    "accuracy": 0.6295054484492875,
+    "macro avg": {
+      "f1-score": 0.3891862357121395,
+      "precision": 0.4861043524287312,
+      "recall": 0.5417157258761582,
+      "support": 5965.0
+    },
+    "weighted avg": {
+      "f1-score": 0.6182230347393165,
+      "precision": 0.7860507401768195,
+      "recall": 0.6295054484492875,
+      "support": 5965.0
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "macro_f1": 0.3891862357121395,
+  "note": "Metrics computed on configured MIT-BIH split.",
+  "precision_macro": 0.4861043524287312,
+  "recall_macro": 0.5417157258761582,
+  "roc_auc_ovr_macro": 0.7830553240000605,
+  "runtime": "pytorch",
+  "sample_count": 5965,
+  "source": "mitbih",
+  "warnings": [],
+  "weighted_f1": 0.6182230347393165
+}

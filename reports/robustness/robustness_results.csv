@@ -1,0 +1,10 @@
+case,status,prediction,confidence,processing_time_ms,error
+clean,accepted,N,0.5323472619056702,20.927,
+gaussian_noise,accepted,N,0.5227692127227783,7.6976,
+baseline_wander,accepted,V,0.9685976505279541,5.858,
+amplitude_scaling,accepted,N,0.5323472619056702,6.6699,
+short_signal,rejected,,0.0,1.2753,"ECG signal is too short: 120 samples, minimum is 360."
+nan_inf_signal,rejected,,0.0,1.1195,ECG signal contains NaN/Inf values (0.28% invalid).
+wrong_sampling_rate,rejected,,0.0,1.2403,"Sampling rate mismatch: received 250 Hz, expected 360 Hz."
+corrupted_csv,rejected,,0.0,32.9417,Failed to read ECG signal from corrupted.csv: No numeric columns found.
+missing_annotation,rejected,,0.0,0.0,"WFDB records must include matching .dat, .hea, and annotation files; preparation validates this before training."

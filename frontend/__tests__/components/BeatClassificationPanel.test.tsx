@@ -18,11 +18,13 @@ jest.mock('../../components/BeatInspector', () => {
 describe('BeatClassificationPanel', () => {
   const createMockBeat = (overrides?: Partial<BeatEvent>): BeatEvent => ({
     timestamp: Date.now() / 1000,
+    bpm: 72,
     beat_type: 'N',
     confidence: 0.9,
-    probabilities: [0.9, 0.05, 0.05, 0, 0],
+    rhythm_class: 'Regular',
+    anomaly_score: 0.1,
     raw_window: new Array(360).fill(0),
-    latency_ms: 5,
+    alert: null,
     ...overrides,
   });
 

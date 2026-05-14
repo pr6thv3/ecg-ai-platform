@@ -1,6 +1,6 @@
 # Stage 1: Builder
 # We use a multi-stage build to compile Next.js and avoid installing devDependencies in production
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install all dependencies (including devDependencies required for the build)
-RUN npm install --legacy-peer-deps
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Runner (Production Image)
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
@@ -25,6 +25,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 # Disable telemetry for privacy
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
 # Copy only the necessary files for a smaller image footprint
 # Copy standalone output from the builder stage

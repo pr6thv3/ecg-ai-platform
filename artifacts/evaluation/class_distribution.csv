@@ -1,0 +1,16 @@
+split,class,count,percentage
+train,N,4000,22.5162
+train,V,4000,22.5162
+train,A,1950,10.9766
+train,L,4000,22.5162
+train,R,3815,21.4748
+validation,N,10580,67.2515
+validation,V,1042,6.6234
+validation,A,457,2.9049
+validation,L,2123,13.4948
+validation,R,1530,9.7254
+test,N,7349,62.55
+test,V,894,7.6092
+test,A,139,1.1831
+test,L,1457,12.4011
+test,R,1910,16.2567
