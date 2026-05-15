@@ -1,0 +1,30 @@
+{
+  "argmax": {
+    "accuracy": 0.5476210741339689,
+    "macro_f1": 0.2769395558666867
+  },
+  "checkpoint": "artifacts/models/best_model.pt",
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "real_mitbih": true,
+  "record_count": 48,
+  "sample_count": 100012,
+  "segmentation": {
+    "normalization": "maxabs",
+    "note": "Evaluation uses annotation-centered windows; API inference uses detected R-peaks.",
+    "training_windows": "MIT-BIH annotation-centered beat windows",
+    "window_size": 360
+  },
+  "source": "mitbih",
+  "thresholded": {
+    "accuracy": 0.6283939058643289,
+    "macro_f1": 0.2824416883451646,
+    "thresholds_used": true
+  },
+  "top_findings": [
+    "A has very low held-out support, so A metrics are high-variance and sensitive to record choice.",
+    "L is effectively not recovered on the held-out records despite non-trivial train support.",
+    "R has severe record-level generalization failure and is mostly predicted as another morphology class.",
+    "Current thresholds improve or match held-out macro F1 relative to argmax.",
+    "Training loss falls while validation macro F1 plateaus, indicating overfitting and record-level domain shift."
+  ]
+}

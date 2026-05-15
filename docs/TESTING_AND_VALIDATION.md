@@ -14,6 +14,9 @@ python -m scripts.smoke_test_pipeline --config configs/default.yaml
 python -m scripts.train_model --config configs/default.yaml
 python -m scripts.evaluate_model --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
 python -m scripts.tune_thresholds --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
+python -m scripts.diagnose_model_quality --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
+python -m scripts.compare_models --config configs/default.yaml
+python -m scripts.cross_validate --config configs/default.yaml
 python -m scripts.error_analysis --config configs/default.yaml
 python -m scripts.robustness_test --config configs/default.yaml
 python -m scripts.explain_prediction --input artifacts/samples/demo_ecg.csv --config configs/default.yaml

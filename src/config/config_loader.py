@@ -70,6 +70,14 @@ def _validate_config(config: dict[str, Any], path: Path) -> None:
     if model_type not in {"baseline_cnn", "resnet1d", "inceptiontime", "cnn_lstm"}:
         raise ConfigError("model.type must be one of baseline_cnn, resnet1d, inceptiontime, cnn_lstm")
 
+    normalization = str(config["preprocessing"].get("normalization", "maxabs"))
+    if normalization not in {"maxabs", "zscore", "robust_zscore", "none"}:
+        raise ConfigError("preprocessing.normalization must be one of maxabs, zscore, robust_zscore, none")
+
+    loss = str(config["training"].get("loss", "cross_entropy"))
+    if loss not in {"cross_entropy", "focal"}:
+        raise ConfigError("training.loss must be cross_entropy or focal")
+
 
 def resolve_path(path: str | Path) -> Path:
     raw = Path(path)

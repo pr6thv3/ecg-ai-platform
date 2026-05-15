@@ -1,0 +1,21 @@
+{
+    "source":  "mitbih",
+    "real_mitbih":  true,
+    "checkpoint":  "artifacts/models/best_model_research.pt",
+    "source_checkpoint":  "artifacts/models/model_comparison/resnet1d_best_model.pt",
+    "model_type":  "resnet1d",
+    "limited_budget":  true,
+    "promoted_to_best_model":  false,
+    "reason":  "Macro F1 improved over current best_model.pt in limited-budget comparison, but A/V/R remain collapsed or zero, so this is a research checkpoint only.",
+    "metrics":  {
+                    "accuracy":  0.73248787130819648,
+                    "macro_f1":  0.3119359737008367,
+                    "weighted_f1":  0.63338980015727242,
+                    "roc_auc_ovr_macro":  0.88940011750078907,
+                    "N_f1":  0.877332517589477,
+                    "V_f1":  0,
+                    "A_f1":  0,
+                    "L_f1":  0.68234735091470655,
+                    "R_f1":  0
+                }
+}

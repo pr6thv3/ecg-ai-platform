@@ -33,12 +33,14 @@ preprocessing:
   filter_order: 1
   window_size: 360
   normalize: true
+  normalization: maxabs
   min_signal_length: 360
   expected_sampling_rate: 360
   max_nan_fraction: 0.0
 
 model:
   type: baseline_cnn
+  dropout: 0.25
   class_names: ["N", "V", "A", "L", "R"]
   input_size: 360
   runtime: pytorch
@@ -56,6 +58,8 @@ training:
   epochs: 30
   batch_size: 512
   learning_rate: 0.001
+  loss: cross_entropy
+  focal_gamma: 2.0
   patience: 10
   max_train_samples_per_class: 4000
   uncapped: false
@@ -66,8 +70,8 @@ training:
   scheduler: reduce_on_plateau
   gradient_clip_norm: 1.0
   mixed_precision: true
-  compare_epochs: 3
-  compare_max_train_samples_per_class: 1000
+  compare_epochs: 2
+  compare_max_train_samples_per_class: 300
   oversample_train: false
   augmentation:
     enabled: true
@@ -80,6 +84,7 @@ training:
 inference:
   reject_below_confidence: false
   low_confidence_threshold: 0.6
+  batch_size: 2048
   log_inference: true
 
 artifacts:
@@ -96,6 +101,7 @@ reports:
   robustness_dir: reports/robustness
   explainability_dir: reports/explainability
   benchmark_dir: reports/benchmarks
+  experiments_dir: reports/experiments
 
 logging:
   level: INFO

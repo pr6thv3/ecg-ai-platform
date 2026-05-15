@@ -9,7 +9,7 @@ import torch.nn as nn
 class BaselineCNN(nn.Module):
     """Compact 1D CNN baseline for fixed-window ECG beat classification."""
 
-    def __init__(self, num_classes: int = 5, input_size: int = 360):
+    def __init__(self, num_classes: int = 5, input_size: int = 360, dropout: float = 0.25):
         super().__init__()
         _validate_model_args(num_classes, input_size)
         self.features = nn.Sequential(
@@ -26,7 +26,7 @@ class BaselineCNN(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Dropout(0.25),
+            nn.Dropout(float(dropout)),
             nn.Linear(64, num_classes),
         )
 
@@ -57,7 +57,7 @@ class ResidualBlock1D(nn.Module):
 
 
 class ResNet1D(nn.Module):
-    def __init__(self, num_classes: int = 5, input_size: int = 360):
+    def __init__(self, num_classes: int = 5, input_size: int = 360, dropout: float = 0.25):
         super().__init__()
         _validate_model_args(num_classes, input_size)
         self.stem = nn.Sequential(
@@ -77,7 +77,7 @@ class ResNet1D(nn.Module):
             ResidualBlock1D(128, dilation=2),
             nn.AdaptiveAvgPool1d(1),
         )
-        self.classifier = nn.Sequential(nn.Flatten(), nn.Dropout(0.25), nn.Linear(128, num_classes))
+        self.classifier = nn.Sequential(nn.Flatten(), nn.Dropout(float(dropout)), nn.Linear(128, num_classes))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = _ensure_channels(x)
@@ -103,7 +103,7 @@ class InceptionBlock1D(nn.Module):
 
 
 class InceptionTime1D(nn.Module):
-    def __init__(self, num_classes: int = 5, input_size: int = 360):
+    def __init__(self, num_classes: int = 5, input_size: int = 360, dropout: float = 0.25):
         super().__init__()
         _validate_model_args(num_classes, input_size)
         self.net = nn.Sequential(
@@ -112,7 +112,7 @@ class InceptionTime1D(nn.Module):
             InceptionBlock1D(64, 128),
             nn.AdaptiveAvgPool1d(1),
             nn.Flatten(),
-            nn.Dropout(0.25),
+            nn.Dropout(float(dropout)),
             nn.Linear(128, num_classes),
         )
 
@@ -121,7 +121,7 @@ class InceptionTime1D(nn.Module):
 
 
 class CNNLSTM(nn.Module):
-    def __init__(self, num_classes: int = 5, input_size: int = 360):
+    def __init__(self, num_classes: int = 5, input_size: int = 360, dropout: float = 0.25):
         super().__init__()
         _validate_model_args(num_classes, input_size)
         self.cnn = nn.Sequential(
@@ -135,7 +135,7 @@ class CNNLSTM(nn.Module):
             nn.MaxPool1d(2),
         )
         self.rnn = nn.LSTM(input_size=64, hidden_size=64, batch_first=True, bidirectional=True)
-        self.classifier = nn.Sequential(nn.Dropout(0.25), nn.Linear(128, num_classes))
+        self.classifier = nn.Sequential(nn.Dropout(float(dropout)), nn.Linear(128, num_classes))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.cnn(_ensure_channels(x)).transpose(1, 2)
@@ -144,20 +144,28 @@ class CNNLSTM(nn.Module):
         return self.classifier(features)
 
 
-MODEL_REGISTRY: dict[str, Callable[[int, int], nn.Module]] = {
-    "baseline_cnn": lambda num_classes, input_size: BaselineCNN(num_classes=num_classes, input_size=input_size),
-    "resnet1d": lambda num_classes, input_size: ResNet1D(num_classes=num_classes, input_size=input_size),
-    "inceptiontime": lambda num_classes, input_size: InceptionTime1D(num_classes=num_classes, input_size=input_size),
-    "cnn_lstm": lambda num_classes, input_size: CNNLSTM(num_classes=num_classes, input_size=input_size),
+MODEL_REGISTRY: dict[str, Callable[[int, int, float], nn.Module]] = {
+    "baseline_cnn": lambda num_classes, input_size, dropout: BaselineCNN(
+        num_classes=num_classes, input_size=input_size, dropout=dropout
+    ),
+    "resnet1d": lambda num_classes, input_size, dropout: ResNet1D(
+        num_classes=num_classes, input_size=input_size, dropout=dropout
+    ),
+    "inceptiontime": lambda num_classes, input_size, dropout: InceptionTime1D(
+        num_classes=num_classes, input_size=input_size, dropout=dropout
+    ),
+    "cnn_lstm": lambda num_classes, input_size, dropout: CNNLSTM(
+        num_classes=num_classes, input_size=input_size, dropout=dropout
+    ),
 }
 
 
-def build_model(model_type: str, num_classes: int, input_size: int) -> nn.Module:
+def build_model(model_type: str, num_classes: int, input_size: int, dropout: float = 0.25) -> nn.Module:
     normalized = model_type.lower()
     if normalized not in MODEL_REGISTRY:
         supported = ", ".join(sorted(MODEL_REGISTRY))
         raise ValueError(f"Unsupported model.type '{model_type}'. Supported values: {supported}.")
-    return MODEL_REGISTRY[normalized](num_classes, input_size)
+    return MODEL_REGISTRY[normalized](num_classes, input_size, float(dropout))
 
 
 def _ensure_channels(x: torch.Tensor) -> torch.Tensor:

@@ -74,11 +74,22 @@ R: 0.0606
 
 Threshold tuning improved validation macro F1 from `0.3025` to `0.4276`, but held-out test macro F1 remained weak. The anti-collapse check passed because all five classes are predicted and the largest prediction share is `63.10%`, but `L` recall is still zero and `A`/`R` false negatives remain high.
 
+## Research Checkpoint
+
+A limited-budget model comparison produced a `resnet1d` checkpoint with macro F1 `0.3119` and `L` F1 `0.6823`. It is saved locally as:
+
+```text
+artifacts/models/best_model_research.pt
+```
+
+This checkpoint is not promoted to the main model because `A`, `V`, and `R` collapse to zero F1 in that limited run. It is useful for research follow-up only.
+
 ## Limitations
 
 - Current model quality is weak and not clinically reliable.
 - Class imbalance and record-level generalization remain difficult.
 - `L`, `A`, and `R` performance need substantial improvement.
+- Limited-budget architecture experiments show class-specific tradeoffs rather than a stable quality improvement.
 - The local training configuration uses a per-class cap for practical runtime; stronger training should run uncapped on better hardware.
 - Saliency maps are technical debugging aids, not medical explanations.
 - Docker does not include MIT-BIH files or `.pt` checkpoints; those must be provided externally.

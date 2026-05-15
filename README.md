@@ -114,6 +114,24 @@ roc_auc_ovr_macro: 0.6663
 
 Threshold tuning improved validation macro F1 from `0.3025` to `0.4276`, but held-out test macro F1 remains weak. This is an engineering-complete baseline, not a reliable medical classifier.
 
+## Model Quality Research
+
+Additional diagnostics and limited-budget architecture comparison are saved under `reports/experiments/`.
+
+```bash
+python -m scripts.diagnose_model_quality --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
+python -m scripts.compare_models --config configs/default.yaml
+python -m scripts.cross_validate --config configs/default.yaml
+```
+
+Key findings:
+
+- Training and evaluation windows are annotation-centered, fixed-length MIT-BIH beat windows.
+- Current thresholds improve held-out macro F1 slightly versus argmax (`0.2824` vs `0.2769`), but they do not solve minority morphology failures.
+- `A` has very low test support (`139` beats), so its held-out metric is high-variance.
+- `L` and `R` failures are dominated by record-level generalization, not missing training samples.
+- A limited-budget `resnet1d` comparison checkpoint reached macro F1 `0.3119` and recovered `L` F1 `0.6823`, but it collapsed on `V`, `A`, and `R`. It is saved locally as `artifacts/models/best_model_research.pt` for research only and is not promoted over `artifacts/models/best_model.pt`.
+
 ## Inference
 
 CLI:
@@ -209,3 +227,4 @@ Do not add public Render, Railway, Streamlit Cloud, or Vercel URLs until they ar
 - [Technical Report](docs/TECHNICAL_REPORT.md)
 - [Testing And Validation](docs/TESTING_AND_VALIDATION.md)
 - [Model Card](docs/MODEL_CARD.md)
+- [Model Quality Research](docs/MODEL_QUALITY_RESEARCH.md)

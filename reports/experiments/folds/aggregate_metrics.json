@@ -1,0 +1,116 @@
+{
+  "accuracy_mean": 0.8004163731694209,
+  "accuracy_std": 0.06061165576326753,
+  "folds": [
+    {
+      "accuracy": 0.8271929824561404,
+      "fold": 1,
+      "macro_f1": 0.4655271074523307,
+      "overlap_count": 0,
+      "test_record_count": 12,
+      "test_records": [
+        "100",
+        "101",
+        "102",
+        "104",
+        "107",
+        "109",
+        "111",
+        "200",
+        "201",
+        "215",
+        "217",
+        "228"
+      ],
+      "train_record_count": 36,
+      "weighted_f1": 0.824673319983655
+    },
+    {
+      "accuracy": 0.7527036412342494,
+      "fold": 2,
+      "macro_f1": 0.568770994344757,
+      "overlap_count": 0,
+      "test_record_count": 9,
+      "test_records": [
+        "106",
+        "112",
+        "114",
+        "124",
+        "210",
+        "221",
+        "230",
+        "232",
+        "233"
+      ],
+      "train_record_count": 39,
+      "weighted_f1": 0.7923810405899057
+    },
+    {
+      "accuracy": 0.8845333201012257,
+      "fold": 3,
+      "macro_f1": 0.7796061452234987,
+      "overlap_count": 0,
+      "test_record_count": 9,
+      "test_records": [
+        "113",
+        "116",
+        "121",
+        "205",
+        "209",
+        "214",
+        "220",
+        "223",
+        "231"
+      ],
+      "train_record_count": 39,
+      "weighted_f1": 0.8898468251915935
+    },
+    {
+      "accuracy": 0.7126841609206805,
+      "fold": 4,
+      "macro_f1": 0.44388439970028826,
+      "overlap_count": 0,
+      "test_record_count": 9,
+      "test_records": [
+        "105",
+        "118",
+        "119",
+        "123",
+        "202",
+        "203",
+        "207",
+        "222",
+        "234"
+      ],
+      "train_record_count": 39,
+      "weighted_f1": 0.7536298345136672
+    },
+    {
+      "accuracy": 0.8249677611348081,
+      "fold": 5,
+      "macro_f1": 0.3622288237144126,
+      "overlap_count": 0,
+      "test_record_count": 9,
+      "test_records": [
+        "103",
+        "108",
+        "115",
+        "117",
+        "122",
+        "208",
+        "212",
+        "213",
+        "219"
+      ],
+      "train_record_count": 39,
+      "weighted_f1": 0.8442904562897681
+    }
+  ],
+  "macro_f1_mean": 0.5240034940870575,
+  "macro_f1_std": 0.14376817825978624,
+  "note": "This evaluates one trained checkpoint across grouped folds; use repeated training for full CV.",
+  "real_mitbih": true,
+  "source": "mitbih",
+  "weighted_f1_mean": 0.8209642953137178,
+  "weighted_f1_std": 0.04615972624290387
+}

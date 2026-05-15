@@ -28,7 +28,7 @@ def main() -> None:
     unique_records = sorted(set(records.tolist()))
     n_splits = min(args.folds, len(unique_records))
     pipeline = InferencePipeline({**config, "model": {**config["model"], "checkpoint": args.checkpoint or config["model"]["checkpoint"]}})
-    out_dir = resolve_path(config["artifacts"].get("evaluation_dir", "artifacts/evaluation")) / "folds"
+    out_dir = resolve_path(config["reports"].get("experiments_dir", "reports/experiments")) / "folds"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     rows = []

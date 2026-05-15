@@ -1,0 +1,80 @@
+{
+  "best_val_macro_f1": 0.0636245813767877,
+  "checkpoint": "artifacts\\models\\model_comparison\\inceptiontime_best_model.pt",
+  "class_distribution": {
+    "test": {
+      "A": 139,
+      "L": 1457,
+      "N": 7349,
+      "R": 1910,
+      "V": 894
+    },
+    "train": {
+      "A": 300,
+      "L": 300,
+      "N": 300,
+      "R": 300,
+      "V": 300
+    },
+    "val": {
+      "A": 457,
+      "L": 2123,
+      "N": 10580,
+      "R": 1530,
+      "V": 1042
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "duration_sec": 66.659,
+  "epochs_ran": 2,
+  "final_val_accuracy": 0.13596491228070176,
+  "final_val_macro_f1": 0.0636245813767877,
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 0.001,
+      "train_loss": 1.4615699990590414,
+      "val_accuracy": 0.13501144164759726,
+      "val_loss": 1.6109119316957514,
+      "val_macro_f1": 0.047837311730815915
+    },
+    {
+      "epoch": 2,
+      "learning_rate": 0.001,
+      "train_loss": 1.238402590115865,
+      "val_accuracy": 0.13596491228070176,
+      "val_loss": 1.6209162624622464,
+      "val_macro_f1": 0.0636245813767877
+    }
+  ],
+  "model_type": "inceptiontime",
+  "real_mitbih": true,
+  "record_count": 48,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "status": "completed",
+  "training_controls": {
+    "augmentation": {
+      "amplitude_scale_max": 1.1,
+      "amplitude_scale_min": 0.9,
+      "baseline_drift_std": 0.02,
+      "enabled": true,
+      "gaussian_noise_std": 0.02,
+      "time_shift_max": 12
+    },
+    "capped_training": true,
+    "class_weighting": true,
+    "early_stopping_metric": "val_macro_f1",
+    "focal_gamma": 2.0,
+    "gradient_clip_norm": 1.0,
+    "loss": "cross_entropy",
+    "max_train_samples_per_class": 300,
+    "mixed_precision": false,
+    "scheduler": "reduce_on_plateau",
+    "weighted_sampler": true
+  },
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ]
+}

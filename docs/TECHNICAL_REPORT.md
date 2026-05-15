@@ -111,6 +111,37 @@ R: 0.0606
 
 Threshold tuning improved validation macro F1 from `0.3025` to `0.4276`, but held-out macro F1 remains weak. The anti-collapse check passes because all five classes are predicted and the largest prediction share is `63.10%`, but the classifier is not medically reliable. `L` recall is zero, and `A`/`R` false negatives remain high.
 
+## Model Quality Experiments
+
+Diagnostics and limited-budget experiments are stored in:
+
+```text
+reports/experiments/
+```
+
+The default model comparison command now runs each architecture in an isolated subprocess and uses a CPU-safe limited budget:
+
+```text
+compare_epochs: 2
+compare_max_train_samples_per_class: 300
+```
+
+Best limited-budget result:
+
+```text
+model_type: resnet1d
+accuracy: 0.7325
+macro_f1: 0.3119
+weighted_f1: 0.6334
+N_f1: 0.8773
+V_f1: 0.0000
+A_f1: 0.0000
+L_f1: 0.6823
+R_f1: 0.0000
+```
+
+This is saved as `artifacts/models/best_model_research.pt`, not promoted to `artifacts/models/best_model.pt`, because the improvement is not balanced across classes.
+
 ## Deployment Notes
 
 Local API:

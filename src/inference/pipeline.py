@@ -114,7 +114,12 @@ class InferencePipeline:
             state_dict = payload
             model_type = _normalize_model_type(str(self.config["model"].get("type", "baseline_cnn")))
 
-        model = build_model(model_type, num_classes=len(self.class_names), input_size=self.input_size)
+        model = build_model(
+            model_type,
+            num_classes=len(self.class_names),
+            input_size=self.input_size,
+            dropout=float(self.config["model"].get("dropout", 0.25)),
+        )
         model.load_state_dict(state_dict)
         model.eval()
         self._torch_model = model
@@ -145,6 +150,10 @@ class InferencePipeline:
                 checks.append("preprocessing.window_size differs from config")
             if int(preprocessing.get("sampling_rate", self.config["dataset"]["sampling_rate"])) != int(self.config["dataset"]["sampling_rate"]):
                 checks.append("preprocessing.sampling_rate differs from config")
+            expected_norm = str(self.config["preprocessing"].get("normalization", "maxabs"))
+            checkpoint_norm = str(preprocessing.get("normalization", expected_norm))
+            if checkpoint_norm != expected_norm:
+                checks.append("preprocessing.normalization differs from config")
 
         if not checks:
             return
@@ -253,9 +262,13 @@ class InferencePipeline:
             return _softmax(logits)
 
         if self.runtime == "pytorch" and self._torch_model is not None and self._torch is not None:
+            batch_size = max(1, int(self.config.get("inference", {}).get("batch_size", 2048)))
+            outputs = []
             with self._torch.no_grad():
-                logits = self._torch_model(self._torch.tensor(arr, dtype=self._torch.float32)).detach().cpu().numpy()
-            return _softmax(logits)
+                for start in range(0, arr.shape[0], batch_size):
+                    batch = self._torch.tensor(arr[start : start + batch_size], dtype=self._torch.float32)
+                    outputs.append(self._torch_model(batch).detach().cpu().numpy())
+            return _softmax(np.concatenate(outputs, axis=0))
 
         return self._heuristic_probabilities(arr)
 
