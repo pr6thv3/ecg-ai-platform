@@ -11,6 +11,7 @@ This is a research, education, and portfolio project. It is not a regulated clin
 - `48` complete records are usable; `102-0` is skipped because it is missing matching `.dat` and `.hea` files.
 - Current reports are real MIT-BIH reports, not synthetic fallback reports.
 - The model is functional but still weak. Current post-threshold test macro F1 is `0.2824`; `L` recall is still `0.0`, and `A`/`R` false negatives remain high.
+- A higher-budget research pass produced a `cnn_lstm` candidate at macro F1 `0.3295` with non-zero `A`, `L`, `R`, and `V` F1. It is saved as `artifacts/models/best_model_research.pt` for research only; minority-class performance is still weak.
 
 ## Architecture
 
@@ -122,6 +123,7 @@ Additional diagnostics and limited-budget architecture comparison are saved unde
 python -m scripts.diagnose_model_quality --config configs/default.yaml --checkpoint artifacts/models/best_model.pt
 python -m scripts.compare_models --config configs/default.yaml
 python -m scripts.cross_validate --config configs/default.yaml
+python -m scripts.run_high_budget_experiments --config configs/default.yaml --epochs 5 --cap 2500
 ```
 
 Key findings:
@@ -130,7 +132,10 @@ Key findings:
 - Current thresholds improve held-out macro F1 slightly versus argmax (`0.2824` vs `0.2769`), but they do not solve minority morphology failures.
 - `A` has very low test support (`139` beats), so its held-out metric is high-variance.
 - `L` and `R` failures are dominated by record-level generalization, not missing training samples.
-- A limited-budget `resnet1d` comparison checkpoint reached macro F1 `0.3119` and recovered `L` F1 `0.6823`, but it collapsed on `V`, `A`, and `R`. It is saved locally as `artifacts/models/best_model_research.pt` for research only and is not promoted over `artifacts/models/best_model.pt`.
+- A limited-budget `resnet1d` comparison checkpoint reached macro F1 `0.3119` and recovered `L` F1 `0.6823`, but it collapsed on `V`, `A`, and `R`.
+- The larger local research pass found `resnet1d` reached macro F1 `0.4567`, but still had zero `A` and `L` F1, so it was not promoted.
+- The best non-collapsed candidate is `cnn_lstm_maxabs_focal_balanced`: accuracy `0.5520`, macro F1 `0.3295`, weighted F1 `0.5890`, with per-class F1 `N=0.8390`, `V=0.7493`, `A=0.0153`, `L=0.0026`, `R=0.0414`.
+- `artifacts/models/best_model_research.pt` now points to that `cnn_lstm` research candidate. It is not a clinical-quality model and should not replace the default baseline without further validation.
 
 ## Inference
 
@@ -170,7 +175,7 @@ python -m scripts.cross_validate --config configs/default.yaml
 python -m scripts.compare_models --config configs/default.yaml
 ```
 
-`cross_validate` performs grouped record-level checkpoint evaluation. `compare_models` trains selected architectures with the comparison training cap and reports the best by macro F1.
+`cross_validate` performs grouped record-level checkpoint evaluation. `compare_models` trains selected architectures with the comparison training cap and reports the best by macro F1. `run_high_budget_experiments` trains isolated candidate checkpoints under `artifacts/models/candidates/` and only copies a candidate to `artifacts/models/best_model_research.pt` if the explicit research promotion rule passes.
 
 ## Robustness, Explainability, Error Analysis
 

@@ -1,0 +1,105 @@
+{
+  "best_val_macro_f1": 0.38130123396184407,
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\inceptiontime_maxabs_focal_balanced.pt",
+  "class_distribution": {
+    "test": {
+      "A": 139,
+      "L": 1457,
+      "N": 7349,
+      "R": 1910,
+      "V": 894
+    },
+    "train": {
+      "A": 1950,
+      "L": 2500,
+      "N": 2500,
+      "R": 2500,
+      "V": 2500
+    },
+    "val": {
+      "A": 457,
+      "L": 2123,
+      "N": 10580,
+      "R": 1530,
+      "V": 1042
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "duration_sec": 538.4296,
+  "epochs_ran": 5,
+  "final_val_accuracy": 0.7154207983727434,
+  "final_val_macro_f1": 0.3597163867784333,
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 0.0008,
+      "train_loss": 0.616810898042623,
+      "val_accuracy": 0.08454106280193237,
+      "val_loss": 1.5881366240532684,
+      "val_macro_f1": 0.14101474656855933
+    },
+    {
+      "epoch": 2,
+      "learning_rate": 0.0008,
+      "train_loss": 0.31634114505356825,
+      "val_accuracy": 0.727815916603102,
+      "val_loss": 0.8035163934407209,
+      "val_macro_f1": 0.38130123396184407
+    },
+    {
+      "epoch": 3,
+      "learning_rate": 0.0008,
+      "train_loss": 0.22034069326881583,
+      "val_accuracy": 0.4274091024663107,
+      "val_loss": 2.0611591377453498,
+      "val_macro_f1": 0.27502082533631145
+    },
+    {
+      "epoch": 4,
+      "learning_rate": 0.0008,
+      "train_loss": 0.18389243968485788,
+      "val_accuracy": 0.036422578184591915,
+      "val_loss": 1.9449064278160073,
+      "val_macro_f1": 0.045941570356338716
+    },
+    {
+      "epoch": 5,
+      "learning_rate": 0.0008,
+      "train_loss": 0.15885611670785368,
+      "val_accuracy": 0.7154207983727434,
+      "val_loss": 1.0923661777620366,
+      "val_macro_f1": 0.3597163867784333
+    }
+  ],
+  "model_type": "inceptiontime",
+  "real_mitbih": true,
+  "record_count": 48,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "status": "completed",
+  "training_controls": {
+    "augmentation": {
+      "amplitude_scale_max": 1.03,
+      "amplitude_scale_min": 0.97,
+      "baseline_drift_std": 0.02,
+      "baseline_wander_amplitude": 0.0,
+      "enabled": true,
+      "gaussian_noise_std": 0.008,
+      "time_shift_max": 4
+    },
+    "capped_training": true,
+    "class_weighting": true,
+    "early_stopping_metric": "val_macro_f1",
+    "focal_gamma": 1.5,
+    "gradient_clip_norm": 1.0,
+    "loss": "focal",
+    "max_train_samples_per_class": 2500,
+    "mixed_precision": false,
+    "scheduler": "plateau",
+    "weighted_sampler": true
+  },
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ]
+}

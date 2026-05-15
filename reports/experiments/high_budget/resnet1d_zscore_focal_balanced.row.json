@@ -1,0 +1,29 @@
+{
+  "A_f1": 0.0,
+  "L_f1": 0.0,
+  "N_f1": 0.836122693779631,
+  "R_f1": 0.05879371515458692,
+  "V_f1": 0.7106471816283925,
+  "accuracy": 0.7003149204187591,
+  "anti_collapse_status": "warning",
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\resnet1d_zscore_focal_balanced.pt",
+  "epochs": 5,
+  "evaluation_dir": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\reports\\experiments\\high_budget\\resnet1d_zscore_focal_balanced\\evaluation",
+  "experiment": "resnet1d_zscore_focal_balanced",
+  "generated_at": "2026-05-15T06:12:42.862472+00:00",
+  "loss": "focal",
+  "macro_f1": 0.32111271811252207,
+  "max_train_samples_per_class": 2500,
+  "model_type": "resnet1d",
+  "normalization": "zscore",
+  "promotion_passed": false,
+  "promotion_reasons": [
+    "A F1 is zero",
+    "L F1 is zero",
+    "anti-collapse status is warning"
+  ],
+  "roc_auc_ovr_macro": 0.7409437349222249,
+  "status": "completed",
+  "unique_predicted_classes": 5,
+  "weighted_f1": 0.5866269685000896
+}

@@ -1,0 +1,165 @@
+{
+  "accuracy": 0.7692569580389821,
+  "anti_collapse_check": {
+    "max_pred_class": "N",
+    "max_pred_percentage": 81.18137713847987,
+    "status": "passed",
+    "unique_classes_predicted": 5,
+    "warnings": []
+  },
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\resnet1d_maxabs_focal_balanced.pt",
+  "class_distribution": {
+    "real_mitbih": true,
+    "sampling_rate": 360,
+    "source": "mitbih",
+    "split_strategy": "record_id",
+    "test": {
+      "counts": {
+        "A": 139,
+        "L": 1457,
+        "N": 7349,
+        "R": 1910,
+        "V": 894
+      },
+      "percentages": {
+        "A": 1.1831,
+        "L": 12.4011,
+        "N": 62.55,
+        "R": 16.2567,
+        "V": 7.6092
+      },
+      "total": 11749
+    },
+    "train": {
+      "counts": {
+        "A": 1950,
+        "L": 2500,
+        "N": 2500,
+        "R": 2500,
+        "V": 2500
+      },
+      "percentages": {
+        "A": 16.318,
+        "L": 20.9205,
+        "N": 20.9205,
+        "R": 20.9205,
+        "V": 20.9205
+      },
+      "total": 11950
+    },
+    "validation": {
+      "counts": {
+        "A": 457,
+        "L": 2123,
+        "N": 10580,
+        "R": 1530,
+        "V": 1042
+      },
+      "percentages": {
+        "A": 2.9049,
+        "L": 13.4948,
+        "N": 67.2515,
+        "R": 9.7254,
+        "V": 6.6234
+      },
+      "total": 15732
+    },
+    "warnings": []
+  },
+  "classification_report": {
+    "A": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "sensitivity": 0.0,
+      "specificity": 0.9888027562446167,
+      "support": 139.0
+    },
+    "L": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "sensitivity": 0.0,
+      "specificity": 0.9997085114652157,
+      "support": 1457.0
+    },
+    "N": {
+      "f1-score": 0.8698999230177059,
+      "precision": 0.7700775843992451,
+      "recall": 0.9994557082596272,
+      "sensitivity": 0.9994557082596272,
+      "specificity": 0.5015909090909091,
+      "support": 7349.0
+    },
+    "R": {
+      "f1-score": 0.6199786704585851,
+      "precision": 0.9656699889258029,
+      "recall": 0.45654450261780105,
+      "sensitivity": 0.45654450261780105,
+      "specificity": 0.9968492733001322,
+      "support": 1910.0
+    },
+    "V": {
+      "f1-score": 0.7936201063315611,
+      "precision": 0.6987234042553192,
+      "recall": 0.9183445190156599,
+      "sensitivity": 0.9183445190156599,
+      "specificity": 0.9673883003224321,
+      "support": 894.0
+    },
+    "accuracy": 0.7692569580389821,
+    "macro avg": {
+      "f1-score": 0.4566997399615705,
+      "precision": 0.4868941955160734,
+      "recall": 0.4748689459786177,
+      "support": 11749.0
+    },
+    "weighted avg": {
+      "f1-score": 0.7052983377218004,
+      "precision": 0.6918366303517398,
+      "recall": 0.7692569580389821,
+      "support": 11749.0
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "low_confidence_summary": {
+    "count": 4464,
+    "percentage": 37.994722955145114,
+    "threshold": 0.6
+  },
+  "macro_f1": 0.4566997399615705,
+  "model_info": {
+    "class_names": [
+      "N",
+      "V",
+      "A",
+      "L",
+      "R"
+    ],
+    "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+    "fallback_used": false,
+    "input_size": 360,
+    "loaded_checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\resnet1d_maxabs_focal_balanced.pt",
+    "model_hash": "a78e89b5fc5f84a42a72cb2e2260c3e88c8950cc93b7e4d2460bdf13a07b2983",
+    "model_type": "resnet1d",
+    "requested_checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\resnet1d_maxabs_focal_balanced.pt",
+    "runtime": "pytorch",
+    "thresholds_loaded": true,
+    "warnings": []
+  },
+  "note": "Metrics computed on configured MIT-BIH split.",
+  "precision_macro": 0.4868941955160734,
+  "real_mitbih": true,
+  "recall_macro": 0.4748689459786177,
+  "record_count": 48,
+  "roc_auc_ovr_macro": 0.8062103894645556,
+  "runtime": "pytorch",
+  "sample_count": 11749,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ],
+  "weighted_f1": 0.7052983377218004
+}

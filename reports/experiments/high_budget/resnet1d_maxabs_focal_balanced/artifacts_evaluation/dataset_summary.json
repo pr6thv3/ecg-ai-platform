@@ -1,0 +1,65 @@
+{
+  "class_distribution": {
+    "real_mitbih": true,
+    "sampling_rate": 360,
+    "source": "mitbih",
+    "split_strategy": "record_id",
+    "test": {
+      "counts": {
+        "A": 139,
+        "L": 1457,
+        "N": 7349,
+        "R": 1910,
+        "V": 894
+      },
+      "percentages": {
+        "A": 1.1831,
+        "L": 12.4011,
+        "N": 62.55,
+        "R": 16.2567,
+        "V": 7.6092
+      },
+      "total": 11749
+    },
+    "train": {
+      "counts": {
+        "A": 1950,
+        "L": 2500,
+        "N": 2500,
+        "R": 2500,
+        "V": 2500
+      },
+      "percentages": {
+        "A": 16.318,
+        "L": 20.9205,
+        "N": 20.9205,
+        "R": 20.9205,
+        "V": 20.9205
+      },
+      "total": 11950
+    },
+    "validation": {
+      "counts": {
+        "A": 457,
+        "L": 2123,
+        "N": 10580,
+        "R": 1530,
+        "V": 1042
+      },
+      "percentages": {
+        "A": 2.9049,
+        "L": 13.4948,
+        "N": 67.2515,
+        "R": 9.7254,
+        "V": 6.6234
+      },
+      "total": 15732
+    },
+    "warnings": []
+  },
+  "real_mitbih": true,
+  "record_count": 48,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id"
+}

@@ -1,0 +1,30 @@
+{
+  "A_f1": 0.0010005002501250625,
+  "L_f1": 0.0,
+  "N_f1": 0.9511834319526628,
+  "R_f1": 0.0,
+  "V_f1": 0.5220858895705521,
+  "accuracy": 0.6745254915311941,
+  "anti_collapse_status": "warning",
+  "checkpoint": "artifacts\\models\\candidates\\inceptiontime_maxabs_focal_balanced.pt",
+  "epochs": 5,
+  "evaluation_dir": "reports\\experiments\\high_budget\\inceptiontime_maxabs_focal_balanced\\evaluation",
+  "experiment": "inceptiontime_maxabs_focal_balanced",
+  "generated_at": "2026-05-15T06:33:08.379398+00:00",
+  "loss": "focal",
+  "macro_f1": 0.294853964354668,
+  "max_train_samples_per_class": 2500,
+  "model_type": "inceptiontime",
+  "normalization": "maxabs",
+  "promotion_passed": false,
+  "promotion_reasons": [
+    "L F1 is zero",
+    "R F1 is zero",
+    "anti-collapse status is warning",
+    "only 3 predicted classes"
+  ],
+  "roc_auc_ovr_macro": 0.781576608463342,
+  "status": "completed",
+  "unique_predicted_classes": 3,
+  "weighted_f1": 0.634703455292447
+}

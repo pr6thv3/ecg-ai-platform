@@ -1,0 +1,168 @@
+{
+  "accuracy": 0.6745254915311941,
+  "anti_collapse_check": {
+    "max_pred_class": "N",
+    "max_pred_percentage": 64.03098136011576,
+    "status": "warning",
+    "unique_classes_predicted": 3,
+    "warnings": [
+      "Model never predicts classes: L, R."
+    ]
+  },
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\inceptiontime_maxabs_focal_balanced.pt",
+  "class_distribution": {
+    "real_mitbih": true,
+    "sampling_rate": 360,
+    "source": "mitbih",
+    "split_strategy": "record_id",
+    "test": {
+      "counts": {
+        "A": 139,
+        "L": 1457,
+        "N": 7349,
+        "R": 1910,
+        "V": 894
+      },
+      "percentages": {
+        "A": 1.1831,
+        "L": 12.4011,
+        "N": 62.55,
+        "R": 16.2567,
+        "V": 7.6092
+      },
+      "total": 11749
+    },
+    "train": {
+      "counts": {
+        "A": 1950,
+        "L": 2500,
+        "N": 2500,
+        "R": 2500,
+        "V": 2500
+      },
+      "percentages": {
+        "A": 16.318,
+        "L": 20.9205,
+        "N": 20.9205,
+        "R": 20.9205,
+        "V": 20.9205
+      },
+      "total": 11950
+    },
+    "validation": {
+      "counts": {
+        "A": 457,
+        "L": 2123,
+        "N": 10580,
+        "R": 1530,
+        "V": 1042
+      },
+      "percentages": {
+        "A": 2.9049,
+        "L": 13.4948,
+        "N": 67.2515,
+        "R": 9.7254,
+        "V": 6.6234
+      },
+      "total": 15732
+    },
+    "warnings": []
+  },
+  "classification_report": {
+    "A": {
+      "f1-score": 0.0010005002501250625,
+      "precision": 0.0005376344086021505,
+      "recall": 0.007194244604316547,
+      "sensitivity": 0.007194244604316547,
+      "specificity": 0.8398794142980189,
+      "support": 139.0
+    },
+    "L": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "support": 1457.0
+    },
+    "N": {
+      "f1-score": 0.9511834319526628,
+      "precision": 0.9401834374584607,
+      "recall": 0.962443869914274,
+      "sensitivity": 0.962443869914274,
+      "specificity": 0.8977272727272727,
+      "support": 7349.0
+    },
+    "R": {
+      "f1-score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "support": 1910.0
+    },
+    "V": {
+      "f1-score": 0.5220858895705521,
+      "precision": 0.3596787827557058,
+      "recall": 0.9519015659955258,
+      "sensitivity": 0.9519015659955258,
+      "specificity": 0.8604329801934593,
+      "support": 894.0
+    },
+    "accuracy": 0.6745254915311941,
+    "macro avg": {
+      "f1-score": 0.294853964354668,
+      "precision": 0.2600799709245537,
+      "recall": 0.38430793610282327,
+      "support": 11749.0
+    },
+    "weighted avg": {
+      "f1-score": 0.634703455292447,
+      "precision": 0.6154596684695398,
+      "recall": 0.6745254915311941,
+      "support": 11749.0
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "low_confidence_summary": {
+    "count": 3465,
+    "percentage": 29.491871648650946,
+    "threshold": 0.6
+  },
+  "macro_f1": 0.294853964354668,
+  "model_info": {
+    "class_names": [
+      "N",
+      "V",
+      "A",
+      "L",
+      "R"
+    ],
+    "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+    "fallback_used": false,
+    "input_size": 360,
+    "loaded_checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\inceptiontime_maxabs_focal_balanced.pt",
+    "model_hash": "9ea0ba99ad880ab3864b6461a7f0e38a79ec49e76bf03024766b6b3b9a8b055a",
+    "model_type": "inceptiontime",
+    "requested_checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\inceptiontime_maxabs_focal_balanced.pt",
+    "runtime": "pytorch",
+    "thresholds_loaded": true,
+    "warnings": []
+  },
+  "note": "Metrics computed on configured MIT-BIH split.",
+  "precision_macro": 0.2600799709245537,
+  "real_mitbih": true,
+  "recall_macro": 0.38430793610282327,
+  "record_count": 48,
+  "roc_auc_ovr_macro": 0.781576608463342,
+  "runtime": "pytorch",
+  "sample_count": 11749,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0.",
+    "Model never predicts classes: L, R."
+  ],
+  "weighted_f1": 0.634703455292447
+}

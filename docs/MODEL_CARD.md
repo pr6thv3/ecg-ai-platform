@@ -76,20 +76,39 @@ Threshold tuning improved validation macro F1 from `0.3025` to `0.4276`, but hel
 
 ## Research Checkpoint
 
-A limited-budget model comparison produced a `resnet1d` checkpoint with macro F1 `0.3119` and `L` F1 `0.6823`. It is saved locally as:
+The latest higher-budget research pass produced a `cnn_lstm` candidate using real MIT-BIH data, focal loss, class-balanced sampling, lower-strength augmentation, and threshold tuning. It is saved locally as:
 
 ```text
 artifacts/models/best_model_research.pt
 ```
 
-This checkpoint is not promoted to the main model because `A`, `V`, and `R` collapse to zero F1 in that limited run. It is useful for research follow-up only.
+Research candidate metrics:
+
+```text
+accuracy: 0.5520
+macro_f1: 0.3295
+weighted_f1: 0.5890
+roc_auc_ovr_macro: 0.6171
+```
+
+Per-class F1:
+
+```text
+N: 0.8390
+V: 0.7493
+A: 0.0153
+L: 0.0026
+R: 0.0414
+```
+
+This checkpoint passes the narrow research promotion rule because macro F1 improves over `0.2824`, `A`/`L`/`R`/`V` F1 are non-zero, and the prediction distribution is not degenerate. It is not promoted to the main default model, and it is not clinically reliable. The minority morphology classes remain weak.
 
 ## Limitations
 
 - Current model quality is weak and not clinically reliable.
 - Class imbalance and record-level generalization remain difficult.
 - `L`, `A`, and `R` performance need substantial improvement.
-- Limited-budget architecture experiments show class-specific tradeoffs rather than a stable quality improvement.
+- Architecture experiments show class-specific tradeoffs: `resnet1d` achieved higher macro F1 but still had zero `A` and `L` F1, while `cnn_lstm` produced the best non-collapsed research candidate with very weak `A`, `L`, and `R`.
 - The local training configuration uses a per-class cap for practical runtime; stronger training should run uncapped on better hardware.
 - Saliency maps are technical debugging aids, not medical explanations.
 - Docker does not include MIT-BIH files or `.pt` checkpoints; those must be provided externally.
@@ -100,7 +119,7 @@ This project is for research and education only. It must not be used to diagnose
 
 ## Recommended Next Work
 
-- Train `resnet1d` and `inceptiontime` uncapped on stronger hardware.
+- Train `resnet1d` and `cnn_lstm` uncapped on stronger hardware with repeated grouped-record splits.
 - Run grouped fold validation to estimate record-level generalization stability.
 - Investigate `L`, `A`, and `R` false negatives with waveform-level review.
 - Add calibrated probabilities and threshold review by class.

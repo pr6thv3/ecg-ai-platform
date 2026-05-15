@@ -1,0 +1,105 @@
+{
+  "best_val_macro_f1": 0.3735871749249643,
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\cnn_lstm_maxabs_focal_balanced.pt",
+  "class_distribution": {
+    "test": {
+      "A": 139,
+      "L": 1457,
+      "N": 7349,
+      "R": 1910,
+      "V": 894
+    },
+    "train": {
+      "A": 1950,
+      "L": 2500,
+      "N": 2500,
+      "R": 2500,
+      "V": 2500
+    },
+    "val": {
+      "A": 457,
+      "L": 2123,
+      "N": 10580,
+      "R": 1530,
+      "V": 1042
+    }
+  },
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "duration_sec": 212.2877,
+  "epochs_ran": 5,
+  "final_val_accuracy": 0.6885964912280702,
+  "final_val_macro_f1": 0.3735871749249643,
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 0.0007,
+      "train_loss": 0.6920964372457321,
+      "val_accuracy": 0.38164251207729466,
+      "val_loss": 0.95034641912503,
+      "val_macro_f1": 0.22878553201175822
+    },
+    {
+      "epoch": 2,
+      "learning_rate": 0.0007,
+      "train_loss": 0.30374050929456575,
+      "val_accuracy": 0.5990338164251208,
+      "val_loss": 1.0287996559782002,
+      "val_macro_f1": 0.26060008667845586
+    },
+    {
+      "epoch": 3,
+      "learning_rate": 0.0007,
+      "train_loss": 0.17916392582480378,
+      "val_accuracy": 0.6278286295448767,
+      "val_loss": 1.2024594706272673,
+      "val_macro_f1": 0.2673825600026496
+    },
+    {
+      "epoch": 4,
+      "learning_rate": 0.0007,
+      "train_loss": 0.134893538243601,
+      "val_accuracy": 0.6263666412407831,
+      "val_loss": 1.2830328071258343,
+      "val_macro_f1": 0.28551716747167233
+    },
+    {
+      "epoch": 5,
+      "learning_rate": 0.0007,
+      "train_loss": 0.11101749981048217,
+      "val_accuracy": 0.6885964912280702,
+      "val_loss": 1.27177255759629,
+      "val_macro_f1": 0.3735871749249643
+    }
+  ],
+  "model_type": "cnn_lstm",
+  "real_mitbih": true,
+  "record_count": 48,
+  "sampling_rate": 360,
+  "source": "mitbih",
+  "split_strategy": "record_id",
+  "status": "completed",
+  "training_controls": {
+    "augmentation": {
+      "amplitude_scale_max": 1.03,
+      "amplitude_scale_min": 0.97,
+      "baseline_drift_std": 0.02,
+      "baseline_wander_amplitude": 0.0,
+      "enabled": true,
+      "gaussian_noise_std": 0.008,
+      "time_shift_max": 4
+    },
+    "capped_training": true,
+    "class_weighting": true,
+    "early_stopping_metric": "val_macro_f1",
+    "focal_gamma": 1.5,
+    "gradient_clip_norm": 1.0,
+    "loss": "focal",
+    "max_train_samples_per_class": 2500,
+    "mixed_precision": false,
+    "scheduler": "plateau",
+    "weighted_sampler": true
+  },
+  "warnings": [
+    "Skipping MIT-BIH record(s) with missing WFDB files: 102-0."
+  ]
+}

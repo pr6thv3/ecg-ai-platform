@@ -1,0 +1,23 @@
+{
+  "argmax_validation_macro_f1": 0.46915354212693694,
+  "checkpoint": "C:\\Users\\Preethve\\Documents\\Codex\\2026-05-13\\github-plugin-github-openai-curated-https\\ecg-ai-platform\\artifacts\\models\\candidates\\resnet1d_zscore_focal_balanced.pt",
+  "class_order": [
+    "N",
+    "V",
+    "A",
+    "L",
+    "R"
+  ],
+  "disclaimer": "Research and education demo only. Not for clinical diagnosis, treatment, monitoring, or medical decision-making.",
+  "optimized_metric": "validation_macro_f1",
+  "real_mitbih": true,
+  "source": "mitbih",
+  "thresholds": {
+    "A": 0.5,
+    "L": 0.55,
+    "N": 0.15000000000000002,
+    "R": 0.15000000000000002,
+    "V": 0.35
+  },
+  "validation_macro_f1": 0.4969065973538811
+}
